@@ -1,0 +1,107 @@
+/* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  
+  .download-page {
+    text-align: center;
+    padding: 40px;
+  }
+  
+  /* Header Section */
+  .header {
+    margin-bottom: 40px;
+  }
+  
+  .powered-text {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+  
+  .logo-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  /* Main Section */
+  .main {
+    margin-top: 20px;
+  }
+  
+  .file-preview-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+  }
+  
+  .file-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 8px 16px;
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .file-name {
+    font-size: 14px;  /* Adjusted font size */
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+    padding: 8px 12px;
+    /* border: 1px solid #ccc; */
+    /* border-radius: 5px; */
+  }
+  
+  .thumbnail {
+    width: 120px;  /* Adjusted width to match */
+    height: 70px;  /* Adjusted height to match */
+    border-radius: 5px;
+  }
+  
+  .download-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .download-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .footer-text {
+    font-size: 12px;
+    color: #888;
+    margin-top: 30px;
+    text-align: center;
+  }
+  
