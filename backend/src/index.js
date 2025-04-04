@@ -1,14 +1,24 @@
-require('dotenv').config({path:'./env'})
-import express from 'express';
-import prisma from './db/db.js';
+require('dotenv').config({ path: './.env' });
+const connectDB = require("./db/db");
+const videoRoutes = require("./app");
+const path = require("path");
+const express = require("express");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
+
+// Middleware
 app.use(express.json());
 
-app.get('/users', async (req, res) => {
-    const users = await prisma.user.findMany();
-    res.json(users);
-});
+// Routes
+app.use("/api", videoRoutes);
 
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Serve uploads (optional for accessing videos directly)
+app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
+
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
