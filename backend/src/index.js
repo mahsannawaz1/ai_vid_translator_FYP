@@ -5,6 +5,8 @@ const path = require("path");
 const express = require("express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const cors = require("cors");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // Middleware
+app.use(cors());
+
 app.use(express.json());
 
 // Routes

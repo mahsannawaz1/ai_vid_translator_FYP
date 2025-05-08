@@ -65,6 +65,11 @@ const upload = multer({ storage });
  *       400:
  *         description: No file uploaded
  */
+
+router.get("/test", (req, res) => {
+    res.json({ message: "Hello from the backend!" });
+});
+
 router.post("/upload", upload.single("video"), async (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).send("No file uploaded");
