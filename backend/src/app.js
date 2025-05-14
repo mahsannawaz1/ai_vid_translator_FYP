@@ -106,7 +106,8 @@ router.post("/upload", upload.single("video"), async (req, res) => {
  */
 router.get("/extract-audio/:id", extractAudio);
 
-router.get("/translate-audio/:id", getTranslatedAudio);
+router.post("/upload", upload.single("video"), getTranslatedAudio);
+// router.get("/translate-audio/:id", getTranslatedAudio);
 
 /**
  * @swagger
