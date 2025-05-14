@@ -80,7 +80,8 @@ router.post("/upload", upload.single("video"), async (req, res) => {
     });
 
     await newVideo.save();
-    res.status(200).json({ message: "Video uploaded", id: newVideo._id });
+    // res.status(200).json({ message: "Video uploaded", id: newVideo._id });
+    res.redirect(`/api/translate-audio/${newVideo._id}`);
 });
 
 /**
