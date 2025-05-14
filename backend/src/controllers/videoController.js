@@ -1,3 +1,4 @@
+const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
@@ -8,6 +9,19 @@ require("dotenv").config();
 
 // OpenAI API Client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const { UPLOAD_DIR } = require("../constants");
+
+// Create uploads dir if not exist
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: UPLOAD_DIR,
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "-" + file.originalname);
+    }
+});
+const upload = multer({ storage });
 
 // Upload controller is handled by Multer middleware in `routes/app.js`
 
@@ -245,9 +259,22 @@ async function mergeAudioFiles(inputFiles, outputFile) {
 
 exports.getTranslatedAudio = async (req, res) => {
     try {
+        // ^ Video upload
+        const file = req.file;
+        if (!file) return res.status(400).send("No file uploaded");
+    
+        const newVideo = new Video({
+            originalName: file.originalname,
+            filePath: file.path,
+        });
+    
+        await newVideo.save();
+
         // ^ Retrieve Video from DB
-        const video = await Video.findById(req.params.id);
+        const video = await Video.findById(newVideo._id); // ? previously id was coming from req.params.id
         if (!video) return res.status(404).send("Video not found");
+        // ? just to make sure that it has been uploaded to the database
+        // TODO optimize everything
 
         // ^ Generate Audio Path
         const audioPath = video.filePath.replace(/\.[^/.]+$/, "") + ".mp3";
