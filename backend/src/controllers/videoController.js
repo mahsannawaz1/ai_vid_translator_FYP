@@ -172,7 +172,7 @@ function splitTextIntoChunks(text, chunkSize) {
 
 const CHUNK_SIZE = 4096; // OpenAI's character limit for TTS
 
-async function textToSpeech(text) {
+async function textToSpeech(text, id) {
     try {
         const textChunks = splitTextIntoChunks(text, CHUNK_SIZE);
         const audioFiles = [];
@@ -205,10 +205,10 @@ async function textToSpeech(text) {
             audioFiles.push(chunkPath);
         }
 
-        const finalAudioPath = path.join(__dirname, "../public/translated_audio.mp3");
+        const finalAudioPath = path.join(__dirname, `../public/translated_audio_${id}.mp3`);
         await mergeAudioFiles(audioFiles, finalAudioPath);
 
-        return "/uploads/translated_audio.mp3";
+        return finalAudioPath;
     } catch (err) {
         console.error("TTS Error:", err);
         throw err;
@@ -328,16 +328,16 @@ exports.getTranslatedAudio = async (req, res) => {
         if (!audioUrl) return res.status(500).send("TTS failed");
 
         // ^ Respond with Transcription, Translation, and TTS Audio File URL
-        res.json({ 
-            transcript: segments,
-            translation: translatedText, 
-            audioUrl
-        });
+        // res.json({ 
+        //     transcript: segments,
+        //     translation: translatedText, 
+        //     audioUrl
+        // });
 
         // ^ return the audio to the client and delete it, disabled for testing
-        // res.download(audioUrl, () => {
-        //     fs.unlinkSync(audioUrl); // clean up
-        // });
+        res.download(audioUrl, () => {
+            fs.unlinkSync(audioUrl); // clean up
+        });
 
         // TODO 1: rather than returning the audio, attach the audio to the video and return that
 
