@@ -25,9 +25,6 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick })
             <a onClick={onTutorialClick}>Tutorial</a>
             {/* <a href="#">About us</a> */}
             <a onClick={onFaqClick}>FAQs</a>
-            {/* <a href="#">
-                Pricing <span className="highlight">30% OFF</span>
-            </a> */}
             <a href="#" className="button border">Log in</a>
             <a href="#" className="button purple">Sign up</a>
             </div>
