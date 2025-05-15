@@ -1,4 +1,4 @@
-/* General Styling */
+/* 
 body {
     font-family: Arial, sans-serif;
     background-color: #fff;
@@ -12,7 +12,7 @@ body {
     padding: 40px;
   }
   
-  /* Header Section */
+  
   .header {
     margin-bottom: 40px;
   }
@@ -39,8 +39,7 @@ body {
     font-weight: bold;
     color: #333;
   }
-  
-  /* Main Section */
+
   .main {
     margin-top: 20px;
   }
@@ -63,20 +62,18 @@ body {
   }
   
   .file-name {
-    font-size: 14px;  /* Adjusted font size */
+    font-size: 14px;  
     color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 300px;
     padding: 8px 12px;
-    /* border: 1px solid #ccc; */
-    /* border-radius: 5px; */
   }
   
   .thumbnail {
-    width: 120px;  /* Adjusted width to match */
-    height: 70px;  /* Adjusted height to match */
+    width: 120px;  
+    height: 70px;  
     border-radius: 5px;
   }
   
@@ -104,4 +101,4 @@ body {
     margin-top: 30px;
     text-align: center;
   }
-  
+   */

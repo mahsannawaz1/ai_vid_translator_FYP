@@ -1,8 +1,8 @@
-/* Header */
+/* 
 .header {
   width: 100%;
   padding: 10px 20px;
-  background-color: #fff; /* Matches the design */
+  background-color: #fff; 
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 50px;
 }
@@ -40,7 +40,7 @@
 
 .nav-item:hover {
   text-decoration: underline;
-  color: #000; /* Hover effect color */
+  color: #000; 
 }
 
 .btn-primary {
@@ -48,7 +48,7 @@
   color: #fff;
   padding: 10px 15px;
   border: none;
-  border-radius: 20px; /* Rounded button */
+  border-radius: 20px; 
   cursor: pointer;
 }
 
@@ -57,7 +57,7 @@
 }
 
 
-/* Main Section */
+
 .main {
   text-align: center;
 }
@@ -120,4 +120,4 @@
   font-size: 12px;
   color: #888;
   margin-top: 10px;
-}
+} */

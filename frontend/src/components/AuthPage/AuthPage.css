@@ -1,11 +1,11 @@
-/* Main layout */
+/* 
 .auth-page {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 30px;
     height: 100vh;
-    background: #D9D9D9; /* Background color for the page */
+    background: #D9D9D9; 
 }
 
 .form-container {
@@ -31,7 +31,7 @@ h1 {
 .auth-buttons button {
     padding: 15px;
     border: 1px solid #ccc;
-    border-radius: 50px; /* Make buttons round */
+    border-radius: 50px;
     background-color: white;
     color: #333;
     font-size: 16px;
@@ -62,7 +62,7 @@ h1 {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 50px; /* Round the input fields */
+    border-radius: 50px; 
     font-size: 16px;
 }
 
@@ -85,7 +85,7 @@ h1 {
     color: white;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 50px; /* Round the login button */
+    border-radius: 50px; 
 }
 
 .login-btn:hover {
@@ -151,9 +151,9 @@ hr {
   }
   
   .second-section .image-container img {
-    width: 80%; /* Adjust size as per requirement */
+    width: 80%; 
     max-width: 600px;
     height: auto;
     margin-top: 20px;
   }
-  
+   */

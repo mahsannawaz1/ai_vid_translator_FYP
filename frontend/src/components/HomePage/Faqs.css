@@ -1,0 +1,31 @@
+.faq-wrapper {
+    max-width: 700px;
+    margin: 40px auto;
+}
+
+.faq-title {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.faq-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+    cursor: pointer;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+.faq-answer {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
