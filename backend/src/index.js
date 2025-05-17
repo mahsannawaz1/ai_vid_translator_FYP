@@ -21,6 +21,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api", videoRoutes);
+app.use("/api", videoRoutes);
 
 // Serve uploads (optional for accessing videos directly)
 app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));

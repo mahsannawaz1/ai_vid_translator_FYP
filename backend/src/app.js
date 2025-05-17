@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const auth = require('./middlewares/auth')
 require("dotenv").config();
 
 const { UPLOAD_DIR } = require("./constants");
@@ -14,6 +15,15 @@ const {
     getTestVideo,
     getTranslatedAudio,
 } = require("./controllers/videoController");
+
+const {
+    registerUser,
+    loginUser,
+    verifyEmail,
+    sendResetEmail,
+    changePassword,
+    userDetails
+} = require('./controllers/userController')
 
 const router = express.Router();
 
@@ -139,5 +149,13 @@ router.delete("/video/:id", deleteVideo);
  *         description: Returns a test video
  */
 router.get("/test-video", getTestVideo);
+
+
+router.post( "/register", registerUser )
+router.post( "/login", loginUser )
+router.post( "/verifyEmail", verifyEmail )
+router.post( "/sendResetEmail", sendResetEmail )
+router.post( "/changePassword", changePassword )
+router.get( "/userDetails", auth , userDetails )
 
 module.exports = router;
