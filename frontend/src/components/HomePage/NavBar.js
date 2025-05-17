@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './NavBar.css' ;
 import logo from '../../assets/logo.png';
+import { Link } from "react-router-dom";
 
 export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick }) {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -25,8 +26,8 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick })
             <a onClick={onTutorialClick}>Tutorial</a>
             {/* <a href="#">About us</a> */}
             <a onClick={onFaqClick}>FAQs</a>
-            <a href="#" className="button border">Log in</a>
-            <a href="#" className="button purple">Sign up</a>
+            <Link to="/login" className="button border">Log in</Link>
+            <Link to="/signUp" className="button purple">Sign up</Link>
             </div>
         </div>
 

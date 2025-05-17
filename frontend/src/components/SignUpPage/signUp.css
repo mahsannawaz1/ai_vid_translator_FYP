@@ -1,4 +1,4 @@
-.auth-container {
+.signup-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7,13 +7,20 @@
   color: white;
   min-height: 100vh;
 }
-
-.auth-logo {
+.signup-logo {
   width: 80px;
   margin-bottom: 20px;
 }
 
-.auth-form {
+
+.hero-heading {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+
+.signup-form {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -24,13 +31,13 @@
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
-.auth-form label {
+.signup-form label {
   margin-top: 15px;
   margin-bottom: 5px;
   font-weight: 600;
 }
 
-.auth-form input {
+.signup-form input {
   padding: 10px;
   border: none;
   border-radius: 5px;
@@ -38,7 +45,7 @@
   color: white;
 }
 
-.auth-form input:focus {
+.signup-form input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.15);
 }
@@ -58,13 +65,24 @@
   background: darkblue;
 }
 
-.auth-footer {
-  margin-top: 20px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+.verify-email-div{
+  margin-top:60px;
+  height:calc(100vh - 60px) ;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.verify-img{
+  height:300px;
 }
 
-.auth-footer a {
-  color: purple;
-  text-decoration: none;
+
+@media screen and (max-width: 480px) {
+  .signup-form {
+    padding: 20px;
+  }
+  .hero-heading {
+    font-size: 2.2rem;
+  }
 }
