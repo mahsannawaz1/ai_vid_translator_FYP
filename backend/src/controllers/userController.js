@@ -29,7 +29,7 @@ exports.registerUser = async(req,res) => {
     })
     user = await user.save()
     sendEmail(user.email,'VERIFY',user._id)
-    res.send('User registered Successfully')
+    res.status(200).send({email:user.email,message:'User registered Successfully'})
 }
 
 exports.loginUser = async(req,res) => {
