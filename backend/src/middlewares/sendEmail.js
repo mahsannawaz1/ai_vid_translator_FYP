@@ -30,11 +30,13 @@ const sendEmail = async(email,emailType,userId)=>{
             name = `${loggedUser?.firstName || ""} ${loggedUser?.lastName || ""}`
         }
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: false,
             auth: {
-                user: process.env.EMAIL,
-                pass: process.env.EMAIL_PASSWORD
-            }
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+            },
         })
 
         const msg = emailType == 'RESET' ? 
@@ -48,12 +50,12 @@ const sendEmail = async(email,emailType,userId)=>{
         <p>We received a request to reset your password for your PixelAI account.</p>
         <p>You have registered with the following e-mail address: <span> ${loggedUser?.email} </span> </p>
         <p>Simply click on the button to set a new password:</p>
-        <a class="btn" href='http://localhost:3000/signin/reset?token=${hashedToken}'>Reset Your Password </a> 
+        <a class="btn" href='${process.env.REACT_APP_URL}/signin/reset?token=${hashedToken}'>Reset Your Password </a> 
         <p >If you didn't ask to change your password, please ignore this email.</p>
         <p>Best Wishes,</p>
         <p>PixelAI Team.</p>
-        <p>To contact us, click <a href=${'http://localhost:3000'}><span>contact us.</span></a></p>
-        <a href=${'http://localhost:3000'}>www.pixelAI.com.pk</a>
+        <p>To contact us, click <a href=${process.env.REACT_APP_URL}><span>contact us.</span></a></p>
+        <a href=${process.env.REACT_APP_URL}>www.pixelAI.com.pk</a>
         ` 
         : emailType=='VERIFY' ? 
         `
@@ -67,14 +69,14 @@ const sendEmail = async(email,emailType,userId)=>{
         <p>Thank you for registering with PixelAI and welcome.</p>
         <p>You have registered with the following e-mail address: <span> ${loggedUser?.email} </span> </p>
         <p>Please verify your email address and activate your account by clicking the link below</p>
-        <a class="btn" href='http://localhost:3000/user/complete?token=${hashedToken}'>Verify your email </a>
-        <p>Or verify using this link: <a href='http://localhost:3000/user/complete?token=${hashedToken}'>http://localhost:3000/user/complete?token=${hashedToken}</a></p>
-        <p>If you have any questions, check our <a href='http://localhost:3000'><span>FAQs</span></a>, or contact our Customer Service team.</p>
+        <a class="btn" href='${process.env.REACT_APP_URL}/verified?token=${hashedToken}'>Verify your email </a>
+        <p>Or verify using this link: <a href='${process.env.REACT_APP_URL}/verified?token=${hashedToken}'>${process.env.REACT_APP_URL}/verified</a></p>
+        <p>If you have any questions, check our <a href='${process.env.REACT_APP_URL}'><span>FAQs</span></a>, or contact our Customer Service team.</p>
         <p>Best Wishes,</p>
         <p>PixelAI Team.</p>
-        <p>To contact us, click <a href=${'http://localhost:3000'}><span>contact us.</span></a></p>
+        <p>To contact us, click <a href=${process.env.REACT_APP_URL}><span>contact us.</span></a></p>
         <p>Thank you for registering with PixelAI and welcome.</p>
-        <a href=${'http://localhost:3000'}>www.pixelAI.com.pk</a>
+        <a href=${process.env.REACT_APP_URL}>www.pixelAI.com.pk</a>
         ` : ''
         const mailOptions = {
             from:process.env.EMAIL,

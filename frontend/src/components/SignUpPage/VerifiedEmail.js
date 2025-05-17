@@ -1,7 +1,29 @@
-import Navbar from '../HomePage/NavBar'
-import logo from '../../assets/logo.png'
-import successImg from '../../assets/success.svg'
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import Navbar from '../HomePage/NavBar';
+import logo from '../../assets/logo.png';
+import successImg from '../../assets/success.svg';
+import { verifyUserEmail } from '../../services/userService';
+
 const VerifiedEmail = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [token, setToken] = useState("");
+
+    useEffect(() => {
+        const tokenFromUrl = searchParams.get('token');
+        if (!tokenFromUrl) {
+        navigate("/", { replace: true });
+        } else {
+        setToken(tokenFromUrl);
+        }
+    }, [searchParams, navigate]);
+
+    useEffect(() => {
+        if (token.length > 0) {
+        verifyUserEmail(token);
+        }
+    }, [token]);
     return (
         <>
             <Navbar />

@@ -13,7 +13,7 @@ const SignUp = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if ( !email || !password || !confirmPassword) {
@@ -26,8 +26,20 @@ const SignUp = () => {
       return;
     }
     const payload = { firstName,lastName,email,password,confirmPassword }
-    registerUser(payload);
-    navigate("/verify");
+    const res = await registerUser(payload);
+    console.log(res)
+    if(res){
+      navigate("/verify",{
+      state: {
+        email: res.email,
+        }
+      }
+    );
+    }
+    else{
+      alert("Invalid details Entered.");
+    }
+
   };
 
   return (
@@ -41,7 +53,7 @@ const SignUp = () => {
           id="firstName"
           name="firstName"
           value={firstName}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setFirstName(e.target.value)}
           required
         />
 
@@ -51,11 +63,11 @@ const SignUp = () => {
           id="lastName"
           name="lastName"
           value={lastName}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setLastName(e.target.value)}
           required
         />
 
-        <label htmlFor="email">Email Address</label>
+        <label htmlFor="email">Email Address*</label>
         <input
           type="email"
           id="email"
@@ -65,7 +77,7 @@ const SignUp = () => {
           required
         />
 
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Password*</label>
         <input
           type="password"
           id="password"
@@ -75,7 +87,7 @@ const SignUp = () => {
           required
         />
 
-        <label htmlFor="confirmPassword">Confirm Password</label>
+        <label htmlFor="confirmPassword">Confirm Password*</label>
         <input
           type="password"
           id="confirmPassword"

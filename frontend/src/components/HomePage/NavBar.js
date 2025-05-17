@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import './NavBar.css' ;
 import logo from '../../assets/logo.png';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getToken, logOutUser } from '../../services/userService';
 
 export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick }) {
     const [menuOpen, setMenuOpen] = useState(false);
-
+    const token = getToken()
+    const navigate = useNavigate()
     const toggleMobileMenu = () => {
         setMenuOpen(!menuOpen);
     };
+
+    const handleLogoutUser = () => {
+        logOutUser()
+        navigate("/login")
+    }
 
     return (
         <div className='position-relative'>
@@ -26,8 +33,15 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick })
             <a onClick={onTutorialClick}>Tutorial</a>
             {/* <a href="#">About us</a> */}
             <a onClick={onFaqClick}>FAQs</a>
-            <Link to="/login" className="button border">Log in</Link>
-            <Link to="/signUp" className="button purple">Sign up</Link>
+            {!token ?
+            <>
+                <Link to="/login" className="button border">Log in</Link>
+                <Link to="/signUp" className="button purple">Sign up</Link>
+            </>
+            :
+            <button className="button purple" onClick={handleLogoutUser}>Logout</button>
+            }
+
             </div>
         </div>
 
