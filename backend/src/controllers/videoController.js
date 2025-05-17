@@ -5,6 +5,8 @@ const ffmpeg = require("fluent-ffmpeg");
 const Video = require("../models/Video");
 const { TEST_VIDEO_PATH } = require("../constants");
 const { OpenAI } = require("openai");
+const { exec } = require('child_process');
+
 require("dotenv").config();
 
 // OpenAI API Client
@@ -255,7 +257,22 @@ async function mergeAudioFiles(inputFiles, outputFile) {
     });
 }
 
+function replaceAudio(inputVideoPath, inputAudioPath, outputVideoPath) {
+  return new Promise((resolve, reject) => {
+    const cmd = `ffmpeg -i "${inputVideoPath}" -i "${inputAudioPath}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac "${outputVideoPath}"`;
 
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        reject(`FFmpeg Error: ${error.message}`);
+        return;
+      }
+      if (stderr && !stderr.toLowerCase().includes('deprecated')) {
+        console.warn(`FFmpeg stderr:\n${stderr}`);
+      }
+      resolve();
+    });
+  });
+}
 
 exports.getTranslatedAudio = async (req, res) => {
     try {
@@ -353,6 +370,7 @@ exports.getTranslatedAudio = async (req, res) => {
         // ^ Convert Translated Text to Speech (TTS)
         const audioUrl = await textToSpeech(translatedText);
         if (!audioUrl) return res.status(500).send("TTS failed");
+        console.log("Audio translated path: " + audioUrl)
 
         // ^ Respond with Transcription, Translation, and TTS Audio File URL
         // res.json({ 
@@ -361,12 +379,21 @@ exports.getTranslatedAudio = async (req, res) => {
         //     audioUrl
         // });
 
-        // ^ return the audio to the client and delete it, disabled for testing
-        res.download(audioUrl, () => {
-            fs.unlinkSync(audioUrl); // clean up
+        // ^ replace then audio in the video
+        console.log("Replacing audio")
+        const translatedVideoPath = video.filePath.replace(/\.[^/.]+$/, "") + "_translated.mp4";
+        // await replaceAudio(video.filePath, audioUrl, video.filePath.replace(/\.[^/.]+$/, "") + "_translated.mp4")
+        await replaceAudio(video.filePath, audioUrl, translatedVideoPath)
+        console.log("Audio replaced path: " + translatedVideoPath)
+
+        // ^ return the video to the client
+        res.download(translatedVideoPath, () => {
+            // // fs.unlinkSync(audioUrl); // clean up
+            console.log("Response sent")
         });
 
         // TODO 1: rather than returning the audio, attach the audio to the video and return that
+        // TODO 2: delete translations?
 
         // TODO Final: After testing, enable the translated video file return and cleanup
         // TODO Error: AudioURL is absolute, change it to referential

@@ -65,19 +65,19 @@ const upload = multer({ storage });
  *       400:
  *         description: No file uploaded
  */
-router.post("/upload", upload.single("video"), async (req, res) => {
-    const file = req.file;
-    if (!file) return res.status(400).send("No file uploaded");
+// router.post("/upload", upload.single("video"), async (req, res) => {
+//     const file = req.file;
+//     if (!file) return res.status(400).send("No file uploaded");
 
-    const newVideo = new Video({
-        originalName: file.originalname,
-        filePath: file.path,
-    });
+//     const newVideo = new Video({
+//         originalName: file.originalname,
+//         filePath: file.path,
+//     });
 
-    await newVideo.save();
-    // res.status(200).json({ message: "Video uploaded", id: newVideo._id });
-    res.redirect(`/api/translate-audio/${newVideo._id}`);
-});
+//     await newVideo.save();
+//     // res.status(200).json({ message: "Video uploaded", id: newVideo._id });
+//     res.redirect(`/api/translate-audio/${newVideo._id}`);
+// });
 
 /**
  * @swagger
