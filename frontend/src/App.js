@@ -27,9 +27,9 @@ function App() {
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
-
+  console.log(authToken)
   const loggedInRoutes = [
-    <Route path="/upload" element={<LoadPage />} key={"upload"} />,
+    <Route path="/translate" element={<LoadPage />} key={"translate"} />,
     <Route path="/video" element={<VideoPage />} key={"video"} />,
     <Route path="/download" element={<DownloadPage />} key={"download"} />,
     <Route path="/processing" element={<ProcessingPage />} key={"processing"} />,
