@@ -496,3 +496,17 @@ exports.downloadTranslatedVideo = async (req, res) => {
         res.status(500).send(`Couldn't send the video to client! Error: ${err}`);
     }
 }
+
+exports.getAllVideos = async (req, res) => {
+    try {
+        const user = req.user;
+        const videos = await Video.find({
+            "user": req.user._id
+        });
+        res.status(200).send(videos);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+}
