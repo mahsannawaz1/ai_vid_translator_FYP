@@ -13,7 +13,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*", // or specify fe url
+    methods: ["GET", "POST"],
+    credentials: false // set false cause we don't really care about authenticating on updates
+  }
+});
 
 app.set('io', io); // Expose io to routes/controllers
 

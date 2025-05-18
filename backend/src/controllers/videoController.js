@@ -6,6 +6,7 @@ const Video = require("../models/Video");
 const { TEST_VIDEO_PATH } = require("../constants");
 const { OpenAI } = require("openai");
 const { exec } = require('child_process');
+const langs = require('langs');
 
 require("dotenv").config();
 
@@ -119,7 +120,7 @@ exports.getTestVideo = (req, res) => {
     res.download(TEST_VIDEO_PATH);
 };
 
-async function transcribeAudio(audioPath) {
+async function transcribeAudio(audioPath, language) {
     try {
         // TODO 3: Get the language from the request
         // * Doesn't give timestamps
@@ -133,7 +134,8 @@ async function transcribeAudio(audioPath) {
         const response = await openai.audio.transcriptions.create({
             file: fs.createReadStream(audioPath),
             model: "whisper-1",
-            language: "en",
+            // language: "en",
+            language: language,
             response_format: "verbose_json"
         });
         
@@ -146,12 +148,13 @@ async function transcribeAudio(audioPath) {
     }
 }
 
-async function translateText(text) {
+async function translateText(text, sourceLanguage, targetLanguage) {
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
-                { role: "system", content: "Translate the following text into Urdu." },
+                // { role: "system", content: "Translate the following text into Urdu." },
+                { role: "system", content: `Translate the following ${sourceLanguage} text into ${targetLanguage}. Respond only with the translation.`},
                 { role: "user", content: text },
             ],
         });
@@ -188,6 +191,7 @@ function splitTextIntoChunks(text, chunkSize) {
 
 const CHUNK_SIZE = 4096; // OpenAI's character limit for TTS
 
+// ? We don't specify the language, it infers it
 async function textToSpeech(text, id) {
     try {
         const textChunks = splitTextIntoChunks(text, CHUNK_SIZE);
@@ -286,12 +290,60 @@ function sendProgressUpdate(message, channelId, io) {
         }
     }
     catch (err) {
-        console.error(`When sending progress update via RTC: ${err}` )
+        console.warn(`When sending progress update via RTC: ${err}` )
     }
+}
+
+const languageMap = {
+  en: "English",
+  ur: "Urdu",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  zh: "Chinese",
+  hi: "Hindi",
+  ru: "Russian",
+  ar: "Arabic",
+  pt: "Portuguese",
+  // Add more as needed
+}
+function getLanguageName(code, fallback) {
+    if (!code || code.length != 2) {
+        return fallback;
+    }
+    return languageMap[code.toLowerCase()] || fallback;
 }
 
 exports.getTranslatedAudio = async (req, res) => {
     try {
+        console.log(`Source: ${req.body.originalLang}\nTarget: ${req.body.targetLang}`);
+
+        const fellback = {
+            sourceLang: false,
+            targetLang: false
+        };
+
+        const sourceLanguage = getLanguageName(req.body.originalLang, "English");
+        const targetLanguage = getLanguageName(req.body.targetLang, "Urdu");
+
+        console.log(`Source: ${sourceLanguage}\nTarget: ${targetLanguage}`);
+
+        let originalCode = (req.body.originalLang) ? req.body.originalLang.toLowerCase() : "en";
+        if (originalCode != "en" && sourceLanguage == "English") {
+            originalCode = "en";
+            fellback.sourceLang = true;
+        }
+
+        let targetCode = (req.body.targetLang) ? req.body.targetLang.toLowerCase() : "ur";
+        if (targetCode != "ur" && targetLanguage == "Urdu") {
+            targetCode = "ur";
+            fellback.targetLang = true;
+        }
+
+        if (fellback.sourceLang || fellback.targetLang) {
+            console.error(`Given languages not recognized! ${fellback} \n\tSource: ${req.body.originalLang.toLowerCase()}\n\tTarget: ${req.body.targetLang}\n`);
+        }
+
         // ^ RTC init
         const io = req.app.get('io');
         const channelId = req.body.channelId;
@@ -357,7 +409,7 @@ exports.getTranslatedAudio = async (req, res) => {
         message.text = "Transcribing Audio";
         sendProgressUpdate(message, channelId, io);
 
-        const segments = await transcribeAudio(audioPath);
+        const segments = await transcribeAudio(audioPath, originalCode);
         if (!segments || !segments.length) return res.status(500).send("Transcription failed! No transcribed segments");
 
         // ^ Translate segment-by-segment and preserve timing
@@ -391,7 +443,7 @@ exports.getTranslatedAudio = async (req, res) => {
             if (seg.text && typeof seg.text === "string" && seg.text.trim()) {
                 console.log(`Translating segment ${i + 1}/${segments.length}: "${seg.text}"`);
 
-                const translated = await translateText(seg.text.trim());
+                const translated = await translateText(seg.text.trim(), sourceLanguage, targetLanguage);
                 translatedText += translated;
 
                 // Pause detection
@@ -417,7 +469,7 @@ exports.getTranslatedAudio = async (req, res) => {
         message.text = "Synthesizing Translated Audio";
         sendProgressUpdate(message, channelId, io);
 
-        const audioUrl = await textToSpeech(translatedText);
+        const audioUrl = await textToSpeech(translatedText, req.params.id);
         if (!audioUrl) return res.status(500).send("TTS failed");
         console.log("Audio translated path: " + audioUrl)
 
@@ -460,6 +512,14 @@ exports.getTranslatedAudio = async (req, res) => {
 
         message.text = "Video Translated and ready for download!";
         sendProgressUpdate(message, channelId, io);
+
+        if (fellback.sourceLang || fellback.targetLang) {
+            res.status(400).send({
+                video,
+                user: req.user,
+                failure: fellback
+            });
+        }
 
         res.status(200).send({
             video,
