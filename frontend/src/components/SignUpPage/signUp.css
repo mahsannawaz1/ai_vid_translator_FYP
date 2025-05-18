@@ -1,15 +1,22 @@
 .signup-container {
+  background-image: url('../../assets/hero_img.webp');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  min-height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
-  background-color: rgb(16, 16, 19);
+  justify-content: center;
   color: white;
-  min-height: 100vh;
+  font-family: "Figtree", sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
 }
 .signup-logo {
-  width: 80px;
-  margin-bottom: 20px;
+  width: 120px;
+  margin-bottom: 10px;
+  border-radius: 12px;
 }
 
 
@@ -19,65 +26,55 @@
   text-align: center;
 }
 
-
+/* Form styles */
 .signup-form {
+  background: rgba(0, 0, 0, 0.7); /* dark translucent background for contrast */
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(128, 0, 128, 0.7); /* subtle purple glow */
+  max-width: 400px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 400px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 .signup-form label {
-  margin-top: 15px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-weight: 600;
 }
 
 .signup-form input {
-  padding: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border-radius: 6px;
   border: none;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .signup-form input:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 6px 2px purple;
 }
 
 .btn-submit {
-  margin-top: 25px;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  background: blue;
+  background-color: purple;
   color: white;
-  font-size: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .btn-submit:hover {
-  background: darkblue;
+  background-color: darkmagenta;
 }
 
-.verify-email-div{
-  margin-top:60px;
-  height:calc(100vh - 60px) ;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.verify-img{
-  height:300px;
-}
-
-
+/* Responsive adjustments */
 @media screen and (max-width: 480px) {
   .signup-form {
     padding: 20px;
