@@ -16,7 +16,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if ( !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       alert("Please fill in all fields.");
       return;
     }
@@ -25,21 +25,18 @@ const SignUp = () => {
       alert("Passwords do not match.");
       return;
     }
-    const payload = { firstName,lastName,email,password,confirmPassword }
+    const payload = { firstName, lastName, email, password, confirmPassword };
     const res = await registerUser(payload);
-    console.log(res)
-    if(res){
-      navigate("/verify",{
-      state: {
-        email: res.email,
-        }
-      }
-    );
-    }
-    else{
+    console.log(res);
+    if (res) {
+      navigate("/verify", {
+        state: {
+          email: res.email,
+        },
+      });
+    } else {
       alert("Invalid details Entered.");
     }
-
   };
 
   return (
@@ -101,7 +98,7 @@ const SignUp = () => {
           Sign Up
         </button>
       </form>
-            <p className="auth-footer">
+      <p className="auth-footer">
         Already have an account? <a href="/login">Login</a>
       </p>
     </div>

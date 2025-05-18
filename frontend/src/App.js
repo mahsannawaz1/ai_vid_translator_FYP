@@ -7,6 +7,7 @@ import SignUpPage from './components/SignUpPage/signUp';
 import LoadPage from './components/UploadingPage/LoadPage';
 import VideoPage from './components/VideoPage/VideoPage';
 import DownloadPage from './components/DownloadPage/DownloadPage';
+import ProcessingPage from './components/ProcessingPage/Processing';
 import HomePage from './components/HomePage/HomePage'; 
 import VerifyEmail from './components/SignUpPage/VerifyEmail';
 import VerifiedEmail from './components/SignUpPage/VerifiedEmail';
@@ -28,9 +29,10 @@ function App() {
   }, []);
 
   const loggedInRoutes = [
-    <Route path="/upload" element={<LoadPage />} key={"upload"}/>,
+    <Route path="/upload" element={<LoadPage />} key={"upload"} />,
     <Route path="/video" element={<VideoPage />} key={"video"} />,
     <Route path="/download" element={<DownloadPage />} key={"download"} />,
+    <Route path="/processing" element={<ProcessingPage />} key={"processing"} />,
     <Route path="/login" element={authToken ? <Navigate to="/" replace /> : <AuthPage />} key={"login"} />,
     <Route path="/signUp" element={authToken ? <Navigate to="/" replace /> : <SignUpPage />} key={"signUp"} />,
   ]

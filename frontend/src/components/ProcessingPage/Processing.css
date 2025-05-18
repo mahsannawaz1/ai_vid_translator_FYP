@@ -1,0 +1,101 @@
+.processing-page {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  padding-top: 80px;
+  font-family: "Figtree", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.processing-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+
+.processing-box {
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+}
+
+/* Spinner Animation */
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.2);
+  border-top: 6px solid purple;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.processing-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.processing-step {
+  font-size: 1rem;
+  color: #ddd;
+  margin-bottom: 1.5rem;
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  height: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: purple;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+}
+
+.cancel-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 500px) {
+  .processing-box {
+    padding: 1.5rem;
+  }
+
+  .processing-title {
+    font-size: 1.2rem;
+  }
+}

@@ -64,4 +64,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default AuthPage;
