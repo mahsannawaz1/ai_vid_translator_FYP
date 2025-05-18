@@ -33,9 +33,12 @@ io.on('connection', (socket) => {
 connectDB();
 
 // Middleware
+app.use(cors());
+
 app.use(express.json());
 
 // Routes
+app.use("/api", videoRoutes);
 app.use("/api", videoRoutes);
 
 // Serve uploads (optional for accessing videos directly)

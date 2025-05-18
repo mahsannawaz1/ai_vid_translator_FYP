@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const auth = require('./middlewares/auth')
 require("dotenv").config();
 
 const { UPLOAD_DIR } = require("./constants");
@@ -14,6 +15,15 @@ const {
     getTestVideo,
     getTranslatedAudio,
 } = require("./controllers/videoController");
+
+const {
+    registerUser,
+    loginUser,
+    verifyEmail,
+    sendResetEmail,
+    changePassword,
+    userDetails
+} = require('./controllers/userController')
 
 const router = express.Router();
 
@@ -69,16 +79,24 @@ const upload = multer({ storage });
 //     const file = req.file;
 //     if (!file) return res.status(400).send("No file uploaded");
 
-//     const newVideo = new Video({
-//         originalName: file.originalname,
-//         filePath: file.path,
-//     });
+router.get("/test", (req, res) => {
+    res.json({ message: "Hello from the backend!" });
+});
 
-//     await newVideo.save();
-//     // res.status(200).json({ message: "Video uploaded", id: newVideo._id });
-//     res.redirect(`/api/translate-audio/${newVideo._id}`);
-// });
+// router.post("/upload", upload.single("video"), async (req, res) => {
+//     const file = req.file;
+//     if (!file) return res.status(400).send("No file uploaded");
 
+// //     const newVideo = new Video({
+// //         originalName: file.originalname,
+// //         filePath: file.path,
+// //     });
+
+// //     await newVideo.save();
+// //     // res.status(200).json({ message: "Video uploaded", id: newVideo._id });
+// //     res.redirect(`/api/translate-audio/${newVideo._id}`);
+// // });
+// })
 /**
  * @swagger
  * /extract-audio/{id}:
@@ -134,5 +152,13 @@ router.delete("/video/:id", deleteVideo);
  *         description: Returns a test video
  */
 router.get("/test-video", getTestVideo);
+
+
+router.post( "/register", registerUser )
+router.post( "/login", loginUser )
+router.post( "/verifyEmail", verifyEmail )
+router.post( "/sendResetEmail", sendResetEmail )
+router.post( "/changePassword", changePassword )
+router.get( "/userDetails", auth , userDetails )
 
 module.exports = router;

@@ -1,78 +1,67 @@
 import React, { useState } from "react";
 import "./AuthPage.css";
-import "font-awesome/css/font-awesome.min.css";
-
+import logo from "../../assets/logo.png";
+import { loginUser } from "../../services/userService";
+import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
-	const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate()
 
-	const handleFormSubmit = (e) => {
-		e.preventDefault();
-		// Handle form submission logic here
-	};
+  const handleFormSubmit = async(e) => {
+    e.preventDefault();
 
-	return (
-		<div className="auth-page">
-			<div className="form-container">
-				<h1>Welcome to Pixel AI</h1>
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+    const payload = { email, password }
+    const res = await loginUser(payload)
+    if(res){
+          const token = res.data.Authorization
+          localStorage.setItem('x-auth-token',token)
+          navigate('/')
+    }
+    // Add real login logic here
+  };
 
-				<div className="auth-buttons">
-					<button className="google-btn">Join with Google</button>
-					<button className="apple-btn">Join with Apple</button>
-				</div>
+  return (
+    <div className="auth-container">
+      <img src={logo} alt="Pixel AI Logo" className="auth-logo" />
+      <h1 className="hero-heading">Welcome Back to Pixel AI</h1>
 
-				<p className="or-text">or</p>
+      <form className="auth-form" onSubmit={handleFormSubmit}>
+        <label htmlFor="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-				<form onSubmit={handleFormSubmit} className="login-form">
-					<div className="input-field">
-						{/* <label htmlFor="email">Email</label> */}
-						<input type="email" id="email" placeholder="Email" required />
-					</div>
+        <label htmlFor="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-					<div className="input-field">
-						{/* <label htmlFor="password">Password</label> */}
-						<input
-							type="password"
-							id="password"
-							placeholder="Password"
-							required
-						/>
-					</div>
+        <button type="submit" className="btn-submit">
+          Login
+        </button>
+      </form>
 
-					<div className="forgot-password">
-						<a href="#">Forgot Password?</a>
-					</div>
-
-					<button type="submit" className="login-btn">
-						{isLogin ? "Login" : "Sign Up"}
-					</button>
-				</form>
-
-				<p className="signup-text">
-					{isLogin ? "Don't have an account?" : "Already have an account?"}
-					<button className="toggle-btn" onClick={() => setIsLogin(!isLogin)}>
-						{isLogin ? "Sign Up" : "Login"}
-					</button>
-				</p>
-
-				<hr />
-				<div className="privacy-policy">
-					<a href="#">Privacy Policy</a>
-				</div>
-			</div>
-
-			<div className="second-section">
-				<h2>Idea to YouTube Video</h2>
-				<p>
-					With Pixel AI, you can turn any content or idea into video, instantly.
-				</p>
-
-				<div className="image-container">
-					<img src={require("../../assets/image.png")} alt="Pixel AI Demo" />
-				</div>
-			</div>
-		</div>
-	);
+      <p className="auth-footer">
+        Don't have an account? <a href="/signup">Sign up</a>
+      </p>
+    </div>
+  );
 };
 
-export default AuthPage;
+export default AuthPage;

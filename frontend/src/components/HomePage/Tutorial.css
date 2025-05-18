@@ -1,0 +1,69 @@
+.carousel-container {
+    display: flex;
+    padding: 40px;
+    color: white;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.carousel-left {
+    flex: 1;
+    min-width: 250px;
+}
+
+.carousel-left h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.carousel-left p {
+    color: #aaaaaa;
+    max-width: 250px;
+}
+
+.carousel-buttons button {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.carousel-right {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.video-wrapper {
+    width: 100%;
+    max-width: 720px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.video-wrapper video {
+    width: 100%;
+    display: block;
+}
+
+/* Smooth fade animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

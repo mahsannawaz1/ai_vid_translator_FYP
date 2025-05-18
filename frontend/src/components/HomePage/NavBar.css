@@ -1,0 +1,98 @@
+
+
+.navbar {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  position: fixed;
+  top:0px;
+  z-index: 9;
+}
+
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.navbar .logo img {
+  height: 32px;
+  margin-right: 8px;
+}
+
+.navbar .menu {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.navbar .menu a {
+  color: white;
+  text-decoration: none;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.navbar .menu .highlight {
+  background-color: orange;
+  border-radius: 4px;
+  font-size: 0.5em;
+  padding: 2px 4px;
+  margin-left: 4px;
+}
+
+.navbar .menu .button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: white;
+}
+
+.button.yellow {
+  background: yellow;
+  color: black;
+}
+.button.purple {
+  background: purple;
+}
+.button.border {
+  border: 1px solid white;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+}
+
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  padding: 10px 20px;
+  background-color: black;
+}
+
+.mobile-menu a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 0;
+}
+
+@media (max-width: 768px) {
+    .navbar .menu {
+        display: none;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .mobile-menu.open {
+        display: flex;
+    }
+}

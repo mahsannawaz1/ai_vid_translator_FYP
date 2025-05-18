@@ -1,0 +1,88 @@
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: rgb(16, 16, 19);
+  color: white;
+  min-height: 100vh;
+}
+.signup-logo {
+  width: 80px;
+  margin-bottom: 20px;
+}
+
+
+.hero-heading {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.signup-form label {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.signup-form input {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.signup-form input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-submit {
+  margin-top: 25px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: blue;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background: darkblue;
+}
+
+.verify-email-div{
+  margin-top:60px;
+  height:calc(100vh - 60px) ;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.verify-img{
+  height:300px;
+}
+
+
+@media screen and (max-width: 480px) {
+  .signup-form {
+    padding: 20px;
+  }
+  .hero-heading {
+    font-size: 2.2rem;
+  }
+}

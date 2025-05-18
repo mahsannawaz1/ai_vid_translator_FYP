@@ -1,0 +1,63 @@
+body{
+    font-family: "Figtree", sans-serif;
+    margin: 0;
+    background-color: rgb(16,16,19,1);
+    font-size:14px; 
+    color: white;
+}
+.hero{
+    background-image: url('../../assets/hero_img.webp');
+    background-repeat: no-repeat;
+    height: 600px;
+    margin: 0; 
+    padding: 0;
+}
+.hero-heading{
+    text-align: center;
+    text-transform: capitalize;
+    font-weight: 900;
+    font-size: 3.5rem;
+    width:900px;
+}
+.hero-heading-content{
+    color:purple;
+}
+@media screen and (max-width: 900px) {
+    .hero-heading {
+        width: fit-content;
+        
+    }
+}
+.hero-sub-heading{
+    text-align: center;
+    text-transform: capitalize;
+    color:rgba(255, 255, 255, 0.7);
+}
+.translate-btn{
+    padding: 6px 24px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: white;
+    background:blue;
+    font-size: 18px;
+}
+.product-card{
+    width:400px;
+    font-size: 16px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.product-card-body{
+    background:rgba(0,0,0,0.5)
+}
+.product-card > img{
+    width:400px;
+    object-fit: contain;
+}
+.card-body-header{
+    font-size: 20px;
+    color:rgba(255, 255, 255, 0.7);
+}
+.h-200{
+    height: 200px;
+}
