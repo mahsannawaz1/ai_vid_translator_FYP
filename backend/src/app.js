@@ -15,6 +15,7 @@ const {
     getTestVideo,
     getTranslatedAudio,
     downloadTranslatedVideo,
+    getAllVideos,
 } = require("./controllers/videoController");
 
 const {
@@ -122,8 +123,9 @@ router.post("/upload", auth, upload.single("video"), async (req, res) => {
 router.get("/extract-audio/:id", extractAudio);
 
 // router.post("/upload",auth, upload.single("video"), getTranslatedAudio);
-router.get("/translate-audio/:id", auth, getTranslatedAudio);
+router.post("/translate-audio/:id", auth, getTranslatedAudio);
 router.get("/download", auth, downloadTranslatedVideo);
+router.get("/videos", auth, getAllVideos);
 
 /**
  * @swagger
