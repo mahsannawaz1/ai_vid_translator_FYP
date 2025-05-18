@@ -5,11 +5,29 @@ const path = require("path");
 const express = require("express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const cors = require("cors");
-
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.set('io', io); // Expose io to routes/controllers
+
+io.on('connection', (socket) => {
+  console.log('A user connected: ', socket.id);
+
+  socket.on('join', (roomId) => { // ? RoomId is the channelId
+    socket.join(roomId);
+    console.log(`User ${socket.id} joined ${roomId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
 
 // Connect to MongoDB
 connectDB();
@@ -49,7 +67,12 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//     console.log(`Server running at http://localhost:${PORT}`);
+//     console.log(`Swagger running at http://localhost:${PORT}/swagger`);
+// });
+server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
     console.log(`Swagger running at http://localhost:${PORT}/swagger`);
 });
+// ? Socket.io requires that we explicitly create the server

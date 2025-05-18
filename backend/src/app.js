@@ -119,7 +119,7 @@ router.get("/test", (req, res) => {
  */
 router.get("/extract-audio/:id", extractAudio);
 
-router.post("/upload", upload.single("video"), getTranslatedAudio);
+router.post("/upload",auth, upload.single("video"), getTranslatedAudio);
 // router.get("/translate-audio/:id", getTranslatedAudio);
 
 /**

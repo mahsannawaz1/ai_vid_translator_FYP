@@ -274,8 +274,34 @@ function replaceAudio(inputVideoPath, inputAudioPath, outputVideoPath) {
   });
 }
 
+function sendProgressUpdate(message, channelId, io) {
+    try {
+        if (channelId && io)
+        {
+            io.to(channelId).emit('channel-message', message);
+            console.log(`Sent message: ${message}\nOver ${channelId}`)
+        }
+        else {
+            throw new Error(`Either channelId or socket.io invalid:\n\tchannelId: ${channelId}\n\tsocket.io: ${io}`);
+        }
+    }
+    catch (err) {
+        console.error(`When sending progress update via RTC: ${err}` )
+    }
+}
+
 exports.getTranslatedAudio = async (req, res) => {
     try {
+        // ^ RTC init
+        const io = req.app.get('io');
+        const channelId = req.body.channelId;
+        const message = {
+            type: 'status',
+            text: 'Video processing started',
+        };
+        // * The channelId and socket.io are passed in the request.
+        // * Make sure to implement this properly on the client side
+
         // ^ Video upload
         const file = req.file;
         if (!file) return res.status(400).send("No file uploaded");
@@ -285,9 +311,16 @@ exports.getTranslatedAudio = async (req, res) => {
             filePath: file.path,
         });
     
+        message.text = "Uploading Video";
+        sendProgressUpdate(message, channelId, io);
+
         await newVideo.save();
 
         // ^ Retrieve Video from DB
+        
+        message.text = "Verifying Upload";
+        sendProgressUpdate(message, channelId, io);
+        
         const video = await Video.findById(newVideo._id); // ? previously id was coming from req.params.id
         if (!video) return res.status(404).send("Video not found");
         // ? just to make sure that it has been uploaded to the database
@@ -297,6 +330,10 @@ exports.getTranslatedAudio = async (req, res) => {
         const audioPath = video.filePath.replace(/\.[^/.]+$/, "") + ".mp3";
 
         // ^ Extract Audio from Video
+        
+        message.text = "Extracting Audio";
+        sendProgressUpdate(message, channelId, io);
+
         await new Promise((resolve, reject) => {
             ffmpeg(video.filePath)
                 .output(audioPath)
@@ -316,10 +353,18 @@ exports.getTranslatedAudio = async (req, res) => {
 
         // * The following pipeline preserves silence
         // ^ Transcribe Audio using Whisper with Timestamps
+        
+        message.text = "Transcribing Audio";
+        sendProgressUpdate(message, channelId, io);
+
         const segments = await transcribeAudio(audioPath);
         if (!segments || !segments.length) return res.status(500).send("Transcription failed! No transcribed segments");
 
         // ^ Translate segment-by-segment and preserve timing
+        
+        message.text = "Translating Audio";
+        sendProgressUpdate(message, channelId, io);
+
         let translatedText = "";
 
         // ? Outdated and thus commented
@@ -368,11 +413,15 @@ exports.getTranslatedAudio = async (req, res) => {
         // * End
 
         // ^ Convert Translated Text to Speech (TTS)
+        
+        message.text = "Synthesizing Translated Audio";
+        sendProgressUpdate(message, channelId, io);
+
         const audioUrl = await textToSpeech(translatedText);
         if (!audioUrl) return res.status(500).send("TTS failed");
         console.log("Audio translated path: " + audioUrl)
 
-        // ^ Respond with Transcription, Translation, and TTS Audio File URL
+        // // ^ Respond with Transcription, Translation, and TTS Audio File URL
         // res.json({ 
         //     transcript: segments,
         //     translation: translatedText, 
@@ -380,6 +429,10 @@ exports.getTranslatedAudio = async (req, res) => {
         // });
 
         // ^ replace then audio in the video
+        
+        message.text = "Replacing Audio";
+        sendProgressUpdate(message, channelId, io);
+
         console.log("Replacing audio")
         const translatedVideoPath = video.filePath.replace(/\.[^/.]+$/, "") + "_translated.mp4";
         // await replaceAudio(video.filePath, audioUrl, video.filePath.replace(/\.[^/.]+$/, "") + "_translated.mp4")
@@ -387,17 +440,16 @@ exports.getTranslatedAudio = async (req, res) => {
         console.log("Audio replaced path: " + translatedVideoPath)
 
         // ^ return the video to the client
+        
+        message.text = "Sending Translated Video";
+        sendProgressUpdate(message, channelId, io);
+
         res.download(translatedVideoPath, () => {
             // // fs.unlinkSync(audioUrl); // clean up
             console.log("Response sent")
         });
 
-        // TODO 1: rather than returning the audio, attach the audio to the video and return that
         // TODO 2: delete translations?
-
-        // TODO Final: After testing, enable the translated video file return and cleanup
-        // TODO Error: AudioURL is absolute, change it to referential
-
     } catch (err) {
         console.error("Couldn't translate audio: ", err);
         res.status(500).send(`Couldn't translate audio: ${err}`);
