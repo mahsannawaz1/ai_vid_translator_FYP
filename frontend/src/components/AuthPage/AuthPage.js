@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import "./AuthPage.css";
 import logo from "../../assets/logo.png";
+import { loginUser } from "../../services/userService";
+import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate()
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async(e) => {
     e.preventDefault();
 
     if (!email || !password) {
       alert("Please enter both email and password.");
       return;
     }
-
-    console.log("User logged in:", { email });
+    const payload = { email, password }
+    const res = await loginUser(payload)
+    if(res){
+          const token = res.data.Authorization
+          localStorage.setItem('x-auth-token',token)
+          navigate('/')
+    }
     // Add real login logic here
   };
 
@@ -56,4 +64,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default AuthPage;

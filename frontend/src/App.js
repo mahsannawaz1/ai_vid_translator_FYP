@@ -1,31 +1,60 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes,Navigate } from 'react-router-dom';
 import './App.css';
-import SignUpPage from './components/SignUpPage/signUp';
 import AuthPage from './components/AuthPage/AuthPage';
+import SignUpPage from './components/SignUpPage/signUp';
 import LoadPage from './components/UploadingPage/LoadPage';
 import VideoPage from './components/VideoPage/VideoPage';
 import DownloadPage from './components/DownloadPage/DownloadPage';
-import HomePage from './components/HomePage/HomePage';
 import ProcessingPage from './components/ProcessingPage/Processing';
+import HomePage from './components/HomePage/HomePage'; 
+import VerifyEmail from './components/SignUpPage/VerifyEmail';
+import VerifiedEmail from './components/SignUpPage/VerifiedEmail';
+import { getToken } from './services/userService';
+
 
 function App() {
+  const [authToken, setAuthToken] = useState(getToken());
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      setAuthToken(getToken());
+    };
+
+    setAuthToken(getToken());
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const loggedInRoutes = [
+    <Route path="/upload" element={<LoadPage />} key={"upload"} />,
+    <Route path="/video" element={<VideoPage />} key={"video"} />,
+    <Route path="/download" element={<DownloadPage />} key={"download"} />,
+    <Route path="/processing" element={<ProcessingPage />} key={"processing"} />,
+    <Route path="/login" element={authToken ? <Navigate to="/" replace /> : <AuthPage />} key={"login"} />,
+    <Route path="/signUp" element={authToken ? <Navigate to="/" replace /> : <SignUpPage />} key={"signUp"} />,
+  ]
+  const loggedOutRoutes = [
+    <Route path="/verify" element={<VerifyEmail />} key={"verify"}/>,
+    <Route path="/verified" element={<VerifiedEmail />} key={"verified"}/>,
+    <Route path="/login" element={<AuthPage />} key={"login"} />,
+    <Route path="/signUp" element={<SignUpPage />} key={"signUp"} />,
+  ]
   return (
     <div className="App">
       <Router>
         {/* Route setup using Routes instead of Switch */}
         <Routes>
           {/* Default Route for AuthPage */}
-          <Route path="/" element={<HomePage />} />
-          
-          {/* Other Routes */}
-          <Route path='/signUp' element={<SignUpPage/>}/>
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/upload" element={<LoadPage />} />
-          <Route path="/video" element={<VideoPage />} />
-          <Route path="/download" element={<DownloadPage />} />
-          <Route path='/processing' element={<ProcessingPage/>}/>
+          {authToken ? 
+          loggedInRoutes?.map(token=>token)
+          :
+          loggedOutRoutes?.map(token=>token)
+          }
+          <Route path="/" element={<HomePage />} />,
+          {!authToken && <Route path="*" element={<Navigate to="/login" replace />} />}
         </Routes>
       </Router>
     </div>
