@@ -303,25 +303,25 @@ exports.getTranslatedAudio = async (req, res) => {
         // * Make sure to implement this properly on the client side
 
         // ^ Video upload
-        const file = req.file;
-        if (!file) return res.status(400).send("No file uploaded");
+        // const file = req.file;
+        // if (!file) return res.status(400).send("No file uploaded");
     
-        const newVideo = new Video({
-            originalName: file.originalname,
-            filePath: file.path,
-        });
+        // const newVideo = new Video({
+        //     originalName: file.originalname,
+        //     filePath: file.path,
+        // });
     
-        message.text = "Uploading Video";
-        sendProgressUpdate(message, channelId, io);
+        // message.text = "Uploading Video";
+        // sendProgressUpdate(message, channelId, io);
 
-        await newVideo.save();
+        // await newVideo.save();
 
         // ^ Retrieve Video from DB
         
-        message.text = "Verifying Upload";
+        message.text = "Retriving video from DB";
         sendProgressUpdate(message, channelId, io);
         
-        const video = await Video.findById(newVideo._id); // ? previously id was coming from req.params.id
+        const video = await Video.findById(req.params.id);
         if (!video) return res.status(404).send("Video not found");
         // ? just to make sure that it has been uploaded to the database
         // TODO optimize everything
@@ -439,14 +439,31 @@ exports.getTranslatedAudio = async (req, res) => {
         await replaceAudio(video.filePath, audioUrl, translatedVideoPath)
         console.log("Audio replaced path: " + translatedVideoPath)
 
+        // ^ Update the video object in db
+        video.outputFileName = path.basename(translatedVideoPath);
+        video.outputFilePath = translatedVideoPath;
+        video.outputFileUploadedAt = new Date();
+        await video.save();
+
         // ^ return the video to the client
-        
-        message.text = "Sending Translated Video";
+
+        // message.text = "Sending Translated Video";
+        // sendProgressUpdate(message, channelId, io);
+
+        // res.download(translatedVideoPath, () => {
+        //     // // fs.unlinkSync(audioUrl); // clean up
+        //     console.log("Response sent")
+        // });
+        // ? We are separating Downloading, Translating, and Uploading
+
+        console.log("Video translated and stored in DB");
+
+        message.text = "Video Translated and ready for download!";
         sendProgressUpdate(message, channelId, io);
 
-        res.download(translatedVideoPath, () => {
-            // // fs.unlinkSync(audioUrl); // clean up
-            console.log("Response sent")
+        res.status(200).send({
+            video,
+            user: req.user
         });
 
         // TODO 2: delete translations?
@@ -456,3 +473,26 @@ exports.getTranslatedAudio = async (req, res) => {
     }
 };
 
+exports.downloadTranslatedVideo = async (req, res) => {
+    try {
+        const user = req.user;
+        const video = req.body.video;
+        if (user._id != video.user) {
+            throw new Error("User doesn't have permission to acces the video!");
+        }
+        const videoInDB = await Video.findById(video._id);
+        if (video.outputFilePath != videoInDB.outputFilePath) {
+            throw new Error("Mismatching output file paths!");
+        }
+        res.download(
+            video.outputFilePath,
+            () => {
+                console.log("File sent");
+            }
+        );
+    }
+    catch (err) {
+        console.error(`Couldn't send the video to client! Error: ${err}`);
+        res.status(500).send(`Couldn't send the video to client! Error: ${err}`);
+    }
+}

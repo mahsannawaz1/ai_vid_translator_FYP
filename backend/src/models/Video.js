@@ -15,7 +15,7 @@ const videoSchema = new mongoose.Schema({
         type:String,
         default: null
     },
-    outputFielUploadedAt: {
+    outputFileUploadedAt: {
         type: Date,
         default: null
     },
