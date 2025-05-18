@@ -1,123 +1,136 @@
-/* 
-.header {
-  width: 100%;
-  padding: 10px 20px;
-  background-color: #fff; 
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 50px;
+.upload-page {
+  min-height: 100vh;
+  background-image: url('../../assets/hero_img.webp'); /* same as homepage */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  padding-top: 70px; /* space for fixed navbar */
+  font-family: "Figtree", sans-serif;
+  color: white;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.navbar-left {
-  flex: 1;
-}
-
-.brand-name {
-  padding-right: 74px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #000;
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.nav-item {
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-}
-
-.nav-item:hover {
-  text-decoration: underline;
-  color: #000; 
-}
-
-.btn-primary {
-  background-color: #6c63ff;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 20px; 
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background-color: #574bff;
-}
-
-
-
-.main {
-  text-align: center;
-}
-
-.title {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.subtitle {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 30px;
-}
-
-.options {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin-bottom: 20px;
-}
-
-.option {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
+/* Dark overlay to make navbar and text readable */
+.upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* darker overlay */
+  z-index: 0;
 }
 
 .upload-box {
-  border: 2px dashed #aaa;
-  padding: 30px;
-  border-radius: 10px;
-  background-color: #fff;
-  display: inline-block;
-  max-width: 600px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+.upload-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
   text-align: center;
+  color: white;
 }
 
-.upload-box p {
-  margin-bottom: 15px;
-}
-
-.btn-secondary {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
+.upload-input-label {
+  display: block;
+  background-color: #2a2a2a;
+  border: 1px dashed #888;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 1rem;
   cursor: pointer;
+  color: #bbb;
+  transition: background 0.3s ease;
 }
 
-.btn-secondary:hover {
-  background-color: #0056b3;
+.upload-input-label:hover {
+  background-color: #3a3a3a;
 }
 
-.note {
-  font-size: 12px;
+.upload-input-label input[type="file"] {
+  display: none;
+}
+
+.file-info {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
   color: #888;
-  margin-top: 10px;
-} */
+}
+
+.dropdowns label {
+  margin-top: 1rem;
+  display: block;
+  font-weight: 600;
+}
+
+.dropdowns select {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+  border: none;
+  background-color: #2f2f2f;
+  color: white;
+  font-size: 1rem;
+}
+
+.dropdowns select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px purple;
+}
+
+.upload-options {
+  margin-top: 1.5rem;
+}
+
+.upload-options label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.upload-options input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+.upload-btn {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: purple;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.upload-btn:hover {
+  background-color: darkmagenta;
+}
+
+@media screen and (max-width: 500px) {
+  .upload-box {
+    padding: 1.5rem;
+  }
+
+  .upload-title {
+    font-size: 1.5rem;
+  }
+}
