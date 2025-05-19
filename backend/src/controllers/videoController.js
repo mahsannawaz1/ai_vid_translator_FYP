@@ -8,6 +8,7 @@ const { TEST_VIDEO_PATH, languageMap } = require("../constants");
 const { OpenAI } = require("openai");
 const { exec } = require('child_process');
 const langs = require('langs');
+const fsPromises = require("fs/promises");
 
 require("dotenv").config();
 
@@ -335,21 +336,49 @@ async function createAndSaveSRTInDB(video, path) {
 
 async function applySubtitlesToVideo(inputVideoPath, subtitlesPath) {
     const tempOutput = inputVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4";
-    const cmd = `ffmpeg -y -i "${inputVideoPath}" -i "${subtitlesPath}" -c copy -c:s mov_text "${tempOutput}"`;
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -i "${subtitlesPath}" -c copy -c:s mov_text "${tempOutput}"`;
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${subtitlesPath.replace(/\\/g, '\\\\')}'" -c:a copy "${tempOutput}"`;
 
-    try {
-        const { stdout, stderr } = await execAsync(cmd);
-        if (stderr) {
-            console.log(`FFmpeg stderr:\n${stderr}`);
+    // const fixedSubtitlesPath = subtitlesPath.replace(/\\/g, '/'); // <-- safer
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${fixedSubtitlesPath}'" -c:a copy "${tempOutput}"`;
+
+    // const fixedSubtitlesPath = subtitlesPath.replace(/\\/g, '/'); // Convert to forward slashes for FFmpeg
+    // const quotedPath = `"${fixedSubtitlesPath}"`; // Quote entire path
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles=${quotedPath}" -c:a copy "${tempOutput}"`;
+
+    const ffmpegSafePath = subtitlesPath
+        .replace(/\\/g, '/')      // backslashes ➝ forward slashes
+        .replace(/:/, '\\:');     // escape colon (only first colon for Windows drive letter)
+
+    const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${ffmpegSafePath}'" -c:a copy "${tempOutput}"`;
+
+
+
+    // try {
+    //     const { stdout, stderr } = await exec(cmd);
+    //     if (stderr) {
+    //         console.log(`FFmpeg stderr:\n${stderr}`);
+    //     }
+
+        // await fs.rename(tempOutput, inputVideoPath);
+        // console.log(`Subtitles embedded and ${inputVideoPath} replaced.`);
+    //     return inputVideoPath;
+    // } catch (err) {
+    //     console.error("FFmpeg error:", err.message);
+    //     throw err;
+    // }
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+            reject(`FFmpeg Error: ${error.message}`);
+            return;
         }
-
-        await fs.rename(tempOutput, inputVideoPath);
-        console.log(`Subtitles embedded and ${inputVideoPath} replaced.`);
-        return inputVideoPath;
-    } catch (err) {
-        console.error("FFmpeg error:", err.message);
-        throw err;
-    }
+        if (stderr && !stderr.toLowerCase().includes('deprecated')) {
+            console.warn(`FFmpeg stderr:\n${stderr}`);
+        }
+        resolve();
+        });
+    });
 }
 
 // const languageMap = {
@@ -475,7 +504,7 @@ exports.getTranslatedAudio = async (req, res) => {
         console.log(`SRT file saved to ${(path.resolve(video.filePath.replace(/\.[^/.]+$/, "") + ".srt"))}`);
 
         // * now save SRT
-        const subtitles = createAndSaveSRTInDB(video, (video.filePath.replace(/\.[^/.]+$/, "") + ".srt"));
+        const subtitles = await createAndSaveSRTInDB(video, (video.filePath.replace(/\.[^/.]+$/, "") + ".srt"));
 
         // ^ Translate segment-by-segment and preserve timing
         
@@ -572,12 +601,35 @@ exports.getTranslatedAudio = async (req, res) => {
         await replaceAudio(video.filePath, audioUrl, translatedVideoPath)
         console.log("Audio replaced path: " + translatedVideoPath)
 
+        // if (req.body.applySubtitles) {
+        //     console.log("Applying subtitles");
+        //     message.text = "Applying Subtitles";
+        //     sendProgressUpdate(message, channelId, io);
+        //     applySubtitlesToVideo(translatedVideoPath, subtitles.outputFilePath)
+        //         .then(
+        //             async () => {
+        //                 await fsPromises.rename((translatedVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4"), translatedVideoPath);
+        //                 console.log(`Subtitles embedded and ${translatedVideoPath} replaced.`);
+        //             }
+        //         );
+        // }
         if (req.body.applySubtitles) {
             console.log("Applying subtitles");
             message.text = "Applying Subtitles";
             sendProgressUpdate(message, channelId, io);
-            await applySubtitlesToVideo(translatedVideoPath, subtitles.outputFilePath);
+
+            try {
+                await applySubtitlesToVideo(translatedVideoPath, subtitles.outputFilePath);
+                await fsPromises.rename(
+                    translatedVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4",
+                    translatedVideoPath
+                );
+                console.log(`Subtitles embedded and ${translatedVideoPath} replaced.`);
+            } catch (err) {
+                console.error("Error applying subtitles:", err);
+            }
         }
+
 
         // ^ Update the video object in db
         console.log("Saving translated video");

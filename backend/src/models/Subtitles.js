@@ -28,4 +28,4 @@ const subtitleSchema = new mongoose.Schema({
     targetLang: String
 });
 
-module.exports = mongoose.model("Subtitles", videoSchema);
+module.exports = mongoose.model("Subtitles", subtitleSchema);
