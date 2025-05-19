@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const videoSchema = new mongoose.Schema({
+const subtitleSchema = new mongoose.Schema({
     originalName: String,
     filePath: String,
     uploadedAt: {
@@ -19,13 +19,13 @@ const videoSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    user: {
+    video: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Video',
         required: true
     },
     sourceLang: String,
     targetLang: String
 });
 
-module.exports = mongoose.model("Video", videoSchema);
+module.exports = mongoose.model("Subtitles", videoSchema);
