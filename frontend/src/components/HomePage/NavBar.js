@@ -4,7 +4,7 @@ import logo from '../../assets/logo.png';
 import { Link, useNavigate } from "react-router-dom";
 import { getToken, logOutUser } from '../../services/userService';
 
-export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick }) {
+export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick, setAuthToken }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const token = getToken()
     const navigate = useNavigate()
@@ -14,6 +14,7 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick })
 
     const handleLogoutUser = () => {
         logOutUser()
+        setAuthToken(null)
         navigate("/login")
     }
 
@@ -39,7 +40,11 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick })
                 <Link to="/signUp" className="button purple">Sign up</Link>
             </>
             :
-            <button className="button purple" onClick={handleLogoutUser}>Logout</button>
+            <>
+                <Link to="/dashboard" className="button border">Dashboard</Link>
+                <button className="button purple" onClick={handleLogoutUser}>Logout</button>
+            </>
+            
             }
 
             </div>

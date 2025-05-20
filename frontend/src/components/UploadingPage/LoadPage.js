@@ -45,6 +45,9 @@ const LoadPage = () => {
       navigate("/processing", {
         state: {
           id: res.video._id,
+          originalLang,
+          targetLang,
+          applySubtitles:subtitles
         },
       });
     }

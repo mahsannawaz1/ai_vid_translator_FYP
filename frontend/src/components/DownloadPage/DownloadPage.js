@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const DownloadPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { video } = location.state || {};
+  const { video, subtitles } = location.state || {};
 
   if (!video) {
     return (
@@ -30,8 +30,9 @@ const DownloadPage = () => {
     );
   }
 
-  const fileName = video.outputFileName;
-  const videoUrl = `/temp/${encodeURIComponent(fileName)}`;
+const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const videoUrl = `${baseUrl}/temp/${encodeURIComponent(video.outputFileName)}`;
+const subtitleUrl = `${baseUrl}/temp/${encodeURIComponent(subtitles.outputFileName)}`;
 
   return (
     <>
@@ -47,7 +48,7 @@ const DownloadPage = () => {
           </p>
 
           <div className="file-info-block">
-            <p><strong>Filename:</strong> {video.outputFileName}</p>
+            <p><strong>Filename:</strong> {video.outputFileName.split('-').slice(1).join('-')}</p>
             <p><strong>Format:</strong> MP4</p>
             <p><strong>Uploaded:</strong> {new Date(video.outputFileUploadedAt).toLocaleString()}</p>
           </div>
@@ -56,6 +57,11 @@ const DownloadPage = () => {
             <a href={videoUrl} className="download-btn purple" download>
               Download Video
             </a>
+              {subtitleUrl && (
+                <a href={subtitleUrl} className="download-btn border" download>
+                  Download Subtitles
+                </a>
+              )}
             {/* <a href={subtitleUrl} className="download-btn border" download>
               Download Subtitles
             </a>
@@ -65,7 +71,7 @@ const DownloadPage = () => {
           </div>
 
           <p className="footer-note">
-            Didn’t get the expected result? <Link href="/upload">Try Again</Link>
+            Didn’t get the expected result? <Link href="/translate">Try Again</Link>
           </p>
         </div>
       </div>
