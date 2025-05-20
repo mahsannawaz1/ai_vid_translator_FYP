@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const videoSchema = new mongoose.Schema({
     originalName: String,
     filePath: String,
+    thumbnailPath: String,
     uploadedAt: {
         type: Date,
         default: Date.now

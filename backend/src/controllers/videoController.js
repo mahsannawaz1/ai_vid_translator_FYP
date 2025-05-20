@@ -9,6 +9,7 @@ const { OpenAI } = require("openai");
 const { exec } = require('child_process');
 const langs = require('langs');
 const fsPromises = require("fs/promises");
+const mongoose = require("mongoose");
 
 require("dotenv").config();
 
@@ -401,6 +402,26 @@ async function applySubtitlesToVideo(inputVideoPath, subtitlesPath) {
     });
 }
 
+function generateThumbnail(videoPath, outputDir, filename) {
+    return new Promise((resolve, reject) => {
+        ffmpeg(videoPath)
+            .on('end', () => {
+                console.log('Thumbnail generated');
+                resolve();
+            })
+            .on('error', (err) => {
+                console.error('Error generating thumbnails:', err);
+                reject(err);
+            })
+            .screenshots({
+                count: 1, // number of thumbnails
+                folder: outputDir,
+                filename: filename,
+                size: '320x?'
+            });
+    });
+};
+
 // const languageMap = {
 //   en: "English",
 //   ur: "Urdu",
@@ -580,7 +601,7 @@ exports.getTranslatedAudio = async (req, res) => {
 
                 translatedText += " ";
 
-                message.text = `Translating Audio ${(i/segments.length)*100}% Done`;
+                message.text = `Translating Audio ${parseFloat((i/segments.length)*100).toFixed(2)}% Done`;
                 sendProgressUpdate(message, channelId, io);
             }
         }
@@ -662,6 +683,14 @@ exports.getTranslatedAudio = async (req, res) => {
         }
 
 
+        await generateThumbnail(
+            translatedVideoPath,
+            path.dirname(translatedVideoPath),
+            path.basename(translatedVideoPath.replace(path.extname(translatedVideoPath), '.png'))
+        );
+
+        video.thumbnailPath = translatedVideoPath.replace(path.extname(translatedVideoPath), '.png');
+
         // ^ Update the video object in db
         message.text = "Saving Translated Video";
         sendProgressUpdate(message, channelId, io);
@@ -739,6 +768,16 @@ exports.getTranslatedAudio = async (req, res) => {
                     console.log(`File ${video.outputFilePath} deleted successfully.`);
                 }
             });
+
+            if (video.thumbnailPath) {
+                fs.unlink(video.thumbnailPath, (err) => {
+                    if (err) {
+                        console.error(`Failed to delete file ${video.thumbnailPath}: ${err}`);
+                    } else {
+                        console.log(`File ${video.thumbnailPath} deleted successfully.`);
+                    }
+                });
+            }
         }
 
         if (subtitles && subtitles._id) {
@@ -878,20 +917,44 @@ exports.downloadOriginalSubtitles = async (req, res) => {
 exports.getAllVideos = async (req, res) => {
     try {
         const user = req.user;
-        const videos = await Video.find({
-            "user": req.user._id
-        });
-        const subtitles = [];
-        for (const video in videos) {
-            subtitles.push(await Subtitles.find({
-                "video": video._id
-            }));
-        }
-        res.status(200).send({
-            "user": req.user,
-            "videos": videos,
-            "subtitles": subtitles
-        });
+        // let videos = await Video.find({
+        //     "user": req.user._id
+        // });
+        // let subtitles;
+        // for (let i = 0; i < videos.length; i++) {
+        //     // subtitles.push(await Subtitles.find({
+        //     //     "video": video._id
+        //     // }));
+        //     videos[i].subtitles = await Subtitles.find({
+        //         "video": videos[i]._id
+        //     });
+        // }
+        // res.status(200).send({
+        //     "user": req.user,
+        //     "videos": videos,
+        //     // "subtitles": subtitles
+        // });
+
+        const videosWithSubtitles = await Video.aggregate([
+        {
+            $match: {
+            user: new mongoose.Types.ObjectId(user._id), // Filter by user
+            },
+        },
+        {
+            $lookup: {
+            from: 'subtitles',            // Use collection name (usually plural + lowercase)
+            localField: '_id',
+            foreignField: 'video',
+            as: 'subtitles',
+            },
+        },
+        {
+            $sort: { uploadedAt: -1 }, // Optional: sort videos by newest first
+        },
+        ]);
+
+        res.json(videosWithSubtitles);
     }
     catch (err) {
         console.error(err);
