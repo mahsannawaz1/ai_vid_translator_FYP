@@ -23,7 +23,9 @@ const videoSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    sourceLang: String,
+    targetLang: String
 });
 
 module.exports = mongoose.model("Video", videoSchema);
