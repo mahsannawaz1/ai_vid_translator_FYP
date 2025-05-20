@@ -50,6 +50,7 @@ app.use("/api", videoRoutes);
 
 // Serve uploads (optional for accessing videos directly)
 app.use("/uploads", express.static(path.join(__dirname, "..", "public", "uploads")));
+app.use("/temp", express.static(path.join(__dirname, "..", "public", "temp")));
 
 // Swagger setup
 const swaggerOptions = {

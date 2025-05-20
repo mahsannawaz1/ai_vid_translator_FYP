@@ -3,6 +3,7 @@ import "./Processing.css";
 import Navbar from "../HomePage/NavBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import heroBg from "../../assets/hero_img.webp";
+import logo from '../../assets/logo.png'
 import { translateAudio } from "../../services/videoService";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
@@ -10,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 const ProcessingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = location.state;
+  const { id, originalLang, targetLang, applySubtitles } = location.state;
   const [videoId] = useState(id);
 
   const [statusText, setStatusText] = useState("Initializing...");
@@ -50,14 +51,20 @@ const ProcessingPage = () => {
   useEffect(() => {
     const callTranslate = async () => {
       try {
-        const res = await translateAudio(videoId, channelId.current);
+        const payload = {
+          channelId:channelId.current,
+          originalLang,
+          targetLang,
+          applySubtitles
+        }
+        const res = await translateAudio(videoId, payload);
         videoRef.current = res.video; 
         setStatusText("Processing complete!");
         setProgress(100);
 
         setTimeout(() => {
           navigate("/download", {
-            state: { video: videoRef.current },
+            state: { video: videoRef.current, subtitles: res.subtitles },
           });
         }, 2000);
       } catch (err) {
@@ -96,9 +103,10 @@ const ProcessingPage = () => {
             <div className="progress" style={{ width: `${progress}%` }}></div>
           </div>
 
-          <button className="cancel-btn" onClick={handleCancel}>
-            Cancel
-          </button>
+          <div className="d-flex align-items-center justify-content-center">
+            <span className="icon-text">Powered By PixelAI</span>
+            <img className="ml-2" src={logo} width={30} height={30} />
+          </div>
         </div>
       </div>
     </>

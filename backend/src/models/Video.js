@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const videoSchema = new mongoose.Schema({
     originalName: String,
     filePath: String,
+    thumbnailPath: String,
     uploadedAt: {
         type: Date,
         default: Date.now
@@ -23,7 +24,9 @@ const videoSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    sourceLang: String,
+    targetLang: String
 });
 
 module.exports = mongoose.model("Video", videoSchema);

@@ -7,7 +7,7 @@ import Tutorial from './Tutorial';
 import Users from './Users';
 import Faqs from './Faqs';
 
-const HomePage = () => {
+const HomePage = ({setAuthToken}) => {
     const faqRef = useRef(null);
     const productsRef = useRef(null);
     const tutorialRef = useRef(null);
@@ -18,6 +18,7 @@ const HomePage = () => {
                 onFaqClick={() => handleScroll(faqRef)} 
                 onProductsClick={() => handleScroll(productsRef)} 
                 onTutorialClick={() => handleScroll(tutorialRef)} 
+                setAuthToken={setAuthToken}
             />
             <Hero />
             <Products productsRef={productsRef} />

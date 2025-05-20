@@ -55,7 +55,7 @@ function App() {
           :
           loggedOutRoutes?.map(token=>token)
           }
-          <Route path="/" element={<HomePage />} />,
+          <Route path="/" element={<HomePage setAuthToken={setAuthToken} />} />,
           {!authToken && <Route path="*" element={<Navigate to="/login" replace />} />}
         </Routes>
       </Router>

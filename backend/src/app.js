@@ -16,6 +16,8 @@ const {
     getTranslatedAudio,
     downloadTranslatedVideo,
     getAllVideos,
+    downloadTranslatedSubtitles,
+    downloadOriginalSubtitles,
 } = require("./controllers/videoController");
 
 const {
@@ -125,6 +127,8 @@ router.get("/extract-audio/:id", extractAudio);
 // router.post("/upload",auth, upload.single("video"), getTranslatedAudio);
 router.post("/translate-audio/:id", auth, getTranslatedAudio);
 router.get("/download", auth, downloadTranslatedVideo);
+router.get("/subtitles/translated/download", auth, downloadTranslatedSubtitles);
+router.get("/subtitles/original/download", auth, downloadOriginalSubtitles);
 router.get("/videos", auth, getAllVideos);
 
 /**
