@@ -47,6 +47,8 @@ jspm_packages/
 **/jspm_packages/
 backend/node_modules/
 backend/jspm_packages/
+backend/public/
+backend/src/public/
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/

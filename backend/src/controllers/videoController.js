@@ -3,10 +3,12 @@ const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
 const Video = require("../models/Video");
-const { TEST_VIDEO_PATH } = require("../constants");
+const Subtitles = require("../models/Subtitles");
+const { TEST_VIDEO_PATH, languageMap } = require("../constants");
 const { OpenAI } = require("openai");
 const { exec } = require('child_process');
 const langs = require('langs');
+const fsPromises = require("fs/promises");
 
 require("dotenv").config();
 
@@ -193,9 +195,10 @@ const CHUNK_SIZE = 4096; // OpenAI's character limit for TTS
 
 // ? We don't specify the language, it infers it
 async function textToSpeech(text, id) {
+    const publicDir = path.join(__dirname, "../public");
+    const audioFiles = [];
     try {
-        const textChunks = splitTextIntoChunks(text, CHUNK_SIZE);
-        const audioFiles = [];
+        const textChunks = splitTextIntoChunks(text, CHUNK_SIZE);        
 
         for (let i = 0; i < textChunks.length; i++) {
             const chunk = textChunks[i];
@@ -207,14 +210,12 @@ async function textToSpeech(text, id) {
                 input: chunk,
             });
 
-            const publicDir = path.join(__dirname, "../public");
             if (!fs.existsSync(publicDir)) {
                 fs.mkdirSync(publicDir, { recursive: true });
             }
 
-            const chunkPath = path.join(publicDir, `audio_chunk_${i}.mp3`);
+            const chunkPath = path.join(publicDir, `${id}_audio_chunk_${i}.mp3`);
             const stream = fs.createWriteStream(chunkPath);
-
             
             await new Promise((resolve, reject) => {
                 response.body.pipe(stream);
@@ -228,9 +229,30 @@ async function textToSpeech(text, id) {
         const finalAudioPath = path.join(__dirname, `../public/translated_audio_${id}.mp3`);
         await mergeAudioFiles(audioFiles, finalAudioPath);
 
+        // for (let i = 0; i < textChunks.length; i++) {
+        //     fs.unlink(path.join(publicDir, `${id}_audio_chunk_${i}.mp3`), (err) => {
+        //         if (err) {
+        //             console.error(`Failed to delete file ${path.join(publicDir, `${id}_audio_chunk_${i}.mp3`)}: ${err}`);
+        //         } else {
+        //             console.log(`File ${path.join(publicDir, `${id}_audio_chunk_${i}.mp3`)} deleted successfully.`);
+        //         }
+        //     });
+        // }
+
         return finalAudioPath;
     } catch (err) {
         console.error("TTS Error:", err);
+
+        for (let i = 0; i < audioFiles.length; i++) {
+            fs.unlink(path.join(publicDir, `${id}_audio_chunk_${i}.mp3`), (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${path.join(publicDir, `${id}_audio_chunk_${i}.mp3`)}: ${err}`);
+                } else {
+                    console.log(`File ${path.join(publicDir, `${id}_audio_chunk_${i}.mp3`)} deleted successfully.`);
+                }
+            });
+        }
+
         throw err;
     }
 }
@@ -245,7 +267,7 @@ async function mergeAudioFiles(inputFiles, outputFile) {
 
         mergedAudio
             .on("end", async () => {
-                // ✅ Cleanup: Delete chunk files after merge
+                // Cleanup: Delete chunk files after merge
                 for (const file of inputFiles) {
                     fs.unlink(file, (err) => {
                         if (err) console.warn("Failed to delete chunk:", file);
@@ -294,19 +316,104 @@ function sendProgressUpdate(message, channelId, io) {
     }
 }
 
-const languageMap = {
-  en: "English",
-  ur: "Urdu",
-  es: "Spanish",
-  fr: "French",
-  de: "German",
-  zh: "Chinese",
-  hi: "Hindi",
-  ru: "Russian",
-  ar: "Arabic",
-  pt: "Portuguese",
-  // Add more as needed
+function secondsToSRTTime(sec) {
+    const hours = String(Math.floor(sec / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+    const seconds = String(Math.floor(sec % 60)).padStart(2, '0');
+    const milliseconds = String(Math.floor((sec % 1) * 1000)).padStart(3, '0');
+    return `${hours}:${minutes}:${seconds},${milliseconds}`;
 }
+
+function generateSRT(segments) {
+    return segments.map((seg, i) => {
+        const start = secondsToSRTTime(seg.start);
+        const end = secondsToSRTTime(seg.end);
+        const text = seg.text.trim();
+        return `${i + 1}\n${start} --> ${end}\n${text}\n`;
+    }).join('\n');
+}
+
+// async function saveSRTFromWhisper(response, outputPath) {
+//     if (!response.segments || !Array.isArray(response.segments)) {
+//         throw new Error('No segments found in the Whisper response');
+//     }
+
+//     const srtContent = generateSRT(response.segments);
+//     fs.writeFileSync(outputPath, srtContent, 'utf-8');
+//     console.log(`SRT file saved to ${path.resolve(outputPath)}`);
+// }
+
+async function createAndSaveSRTInDB(video, path) {
+    const subtitles = new Subtitles({
+        originalName: video.originalName,
+        filePath: path,
+        video: video._id
+    });
+
+    await subtitles.save();
+    return subtitles;
+}
+
+async function applySubtitlesToVideo(inputVideoPath, subtitlesPath) {
+    const tempOutput = inputVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4";
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -i "${subtitlesPath}" -c copy -c:s mov_text "${tempOutput}"`;
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${subtitlesPath.replace(/\\/g, '\\\\')}'" -c:a copy "${tempOutput}"`;
+
+    // const fixedSubtitlesPath = subtitlesPath.replace(/\\/g, '/'); // <-- safer
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${fixedSubtitlesPath}'" -c:a copy "${tempOutput}"`;
+
+    // const fixedSubtitlesPath = subtitlesPath.replace(/\\/g, '/'); // Convert to forward slashes for FFmpeg
+    // const quotedPath = `"${fixedSubtitlesPath}"`; // Quote entire path
+    // const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles=${quotedPath}" -c:a copy "${tempOutput}"`;
+
+    const ffmpegSafePath = subtitlesPath
+        .replace(/\\/g, '/')      // backslashes ➝ forward slashes
+        .replace(/:/, '\\:');     // escape colon (only first colon for Windows drive letter)
+
+    const cmd = `ffmpeg -y -i "${inputVideoPath}" -vf "subtitles='${ffmpegSafePath}'" -c:a copy "${tempOutput}"`;
+
+
+
+    // try {
+    //     const { stdout, stderr } = await exec(cmd);
+    //     if (stderr) {
+    //         console.log(`FFmpeg stderr:\n${stderr}`);
+    //     }
+
+        // await fs.rename(tempOutput, inputVideoPath);
+        // console.log(`Subtitles embedded and ${inputVideoPath} replaced.`);
+    //     return inputVideoPath;
+    // } catch (err) {
+    //     console.error("FFmpeg error:", err.message);
+    //     throw err;
+    // }
+    return new Promise((resolve, reject) => {
+        exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+            reject(`FFmpeg Error: ${error.message}`);
+            return;
+        }
+        if (stderr && !stderr.toLowerCase().includes('deprecated')) {
+            console.warn(`FFmpeg stderr:\n${stderr}`);
+        }
+        resolve();
+        });
+    });
+}
+
+// const languageMap = {
+//   en: "English",
+//   ur: "Urdu",
+//   es: "Spanish",
+//   fr: "French",
+//   de: "German",
+//   zh: "Chinese",
+//   hi: "Hindi",
+//   ru: "Russian",
+//   ar: "Arabic",
+//   pt: "Portuguese",
+//   // Add more as needed
+// }
 function getLanguageName(code, fallback) {
     if (!code || code.length != 2) {
         return fallback;
@@ -315,6 +422,10 @@ function getLanguageName(code, fallback) {
 }
 
 exports.getTranslatedAudio = async (req, res) => {
+    let subtitles;
+    let video;
+    let audioUrl;
+    let audioPath;
     try {
         console.log(`Source: ${req.body.originalLang}\nTarget: ${req.body.targetLang}`);
 
@@ -373,13 +484,13 @@ exports.getTranslatedAudio = async (req, res) => {
         message.text = "Retriving video from DB";
         sendProgressUpdate(message, channelId, io);
         
-        const video = await Video.findById(req.params.id);
+        video = await Video.findById(req.params.id);
         if (!video) return res.status(404).send("Video not found");
         // ? just to make sure that it has been uploaded to the database
         // TODO optimize everything
 
         // ^ Generate Audio Path
-        const audioPath = video.filePath.replace(/\.[^/.]+$/, "") + ".mp3";
+        audioPath = video.filePath.replace(/\.[^/.]+$/, "") + ".mp3";
 
         // ^ Extract Audio from Video
         
@@ -412,12 +523,20 @@ exports.getTranslatedAudio = async (req, res) => {
         const segments = await transcribeAudio(audioPath, originalCode);
         if (!segments || !segments.length) return res.status(500).send("Transcription failed! No transcribed segments");
 
+        const originalSRT = generateSRT(segments);
+        fs.writeFileSync((video.filePath.replace(/\.[^/.]+$/, "") + ".srt"), originalSRT, 'utf-8');
+        console.log(`SRT file saved to ${(path.resolve(video.filePath.replace(/\.[^/.]+$/, "") + ".srt"))}`);
+
+        // * now save SRT
+        subtitles = await createAndSaveSRTInDB(video, (video.filePath.replace(/\.[^/.]+$/, "") + ".srt"));
+
         // ^ Translate segment-by-segment and preserve timing
         
         message.text = "Translating Audio";
         sendProgressUpdate(message, channelId, io);
 
         let translatedText = "";
+        let srtEntries = [];
 
         // ? Outdated and thus commented
         // for (let i = 0; i < segments.length; i++) {
@@ -455,13 +574,35 @@ exports.getTranslatedAudio = async (req, res) => {
                     }
                 }
 
+                const start = secondsToSRTTime(seg.start);
+                const end = secondsToSRTTime(seg.end);
+                srtEntries.push(`${i + 1}\n${start} --> ${end}\n${translated}\n`);
+
                 translatedText += " ";
+
+                message.text = `Translating Audio ${(i/segments.length)*100}% Done`;
+                sendProgressUpdate(message, channelId, io);
             }
         }
         if (!translatedText) {
             console.error(`Translation Failed! No complete translated text! Text: \n{\n${translatedText}\n}`);
             res.status(500).send("Translation failed! No complete translated text!");
         }
+        
+        message.text = "Saving Subtitles";
+        sendProgressUpdate(message, channelId, io);
+
+        const srtContent = srtEntries.join('\n');
+        fs.writeFileSync((video.filePath.replace(/\.[^/.]+$/, "") + "_translated.srt"), srtContent, 'utf-8');
+        console.log(`Translated SRT saved to ${(video.filePath.replace(/\.[^/.]+$/, "") + "_translated.srt")}`);
+
+        subtitles.sourceLang = originalCode;
+        subtitles.targetLang = targetCode;
+        subtitles.outputFileName = path.basename((video.filePath.replace(/\.[^/.]+$/, "") + "_translated.srt"));
+        subtitles.outputFilePath = (video.filePath.replace(/\.[^/.]+$/, "") + "_translated.srt");
+        subtitles.outputFileUploadedAt = new Date();
+        await subtitles.save();
+
         // * End
 
         // ^ Convert Translated Text to Speech (TTS)
@@ -469,7 +610,7 @@ exports.getTranslatedAudio = async (req, res) => {
         message.text = "Synthesizing Translated Audio";
         sendProgressUpdate(message, channelId, io);
 
-        const audioUrl = await textToSpeech(translatedText, req.params.id);
+        audioUrl = await textToSpeech(translatedText, req.params.id);
         if (!audioUrl) return res.status(500).send("TTS failed");
         console.log("Audio translated path: " + audioUrl)
 
@@ -491,11 +632,69 @@ exports.getTranslatedAudio = async (req, res) => {
         await replaceAudio(video.filePath, audioUrl, translatedVideoPath)
         console.log("Audio replaced path: " + translatedVideoPath)
 
+        // if (req.body.applySubtitles) {
+        //     console.log("Applying subtitles");
+        //     message.text = "Applying Subtitles";
+        //     sendProgressUpdate(message, channelId, io);
+        //     applySubtitlesToVideo(translatedVideoPath, subtitles.outputFilePath)
+        //         .then(
+        //             async () => {
+        //                 await fsPromises.rename((translatedVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4"), translatedVideoPath);
+        //                 console.log(`Subtitles embedded and ${translatedVideoPath} replaced.`);
+        //             }
+        //         );
+        // }
+        if (req.body.applySubtitles) {
+            console.log("Applying subtitles");
+            message.text = "Applying Subtitles";
+            sendProgressUpdate(message, channelId, io);
+
+            try {
+                await applySubtitlesToVideo(translatedVideoPath, subtitles.outputFilePath);
+                await fsPromises.rename(
+                    translatedVideoPath.replace(/\.[^/.]+$/, "") + "_temp.mp4",
+                    translatedVideoPath
+                );
+                console.log(`Subtitles embedded and ${translatedVideoPath} replaced.`);
+            } catch (err) {
+                console.error("Error applying subtitles:", err);
+            }
+        }
+
+
         // ^ Update the video object in db
+        message.text = "Saving Translated Video";
+        sendProgressUpdate(message, channelId, io);
+
+        console.log("Saving translated video");
+        video.sourceLang = originalCode;
+        video.targetLang = targetCode;
         video.outputFileName = path.basename(translatedVideoPath);
         video.outputFilePath = translatedVideoPath;
         video.outputFileUploadedAt = new Date();
         await video.save();
+
+        // ^ Delete Audio files if no longer needed
+
+        if (!(req.body.keepTranslatedAudio)) {
+            fs.unlink(audioUrl, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${audioUrl}: ${err}`);
+                } else {
+                    console.log(`File ${audioUrl} deleted successfully.`);
+                }
+            });
+        }
+
+        if (!(req.body.keepOriginalAudio)) {
+            fs.unlink(audioPath, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${audioPath}: ${err}`);
+                } else {
+                    console.log(`File ${audioPath} deleted successfully.`);
+                }
+            });
+        }
 
         // ^ return the video to the client
 
@@ -516,6 +715,7 @@ exports.getTranslatedAudio = async (req, res) => {
         if (fellback.sourceLang || fellback.targetLang) {
             res.status(400).send({
                 video,
+                subtitles,
                 user: req.user,
                 failure: fellback
             });
@@ -523,13 +723,72 @@ exports.getTranslatedAudio = async (req, res) => {
 
         res.status(200).send({
             video,
+            subtitles,
             user: req.user
         });
 
-        // TODO 2: delete translations?
     } catch (err) {
         console.error("Couldn't translate audio: ", err);
         res.status(500).send(`Couldn't translate audio: ${err}`);
+        
+        if (video && video.outputFilePath) {
+            fs.unlink(video.outputFilePath, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${video.outputFilePath}: ${err}`);
+                } else {
+                    console.log(`File ${video.outputFilePath} deleted successfully.`);
+                }
+            });
+        }
+
+        if (subtitles && subtitles._id) {
+            if (subtitles.filePath) {
+                fs.unlink(subtitles.filePath, (err) => {
+                    if (err) {
+                        console.error(`Failed to delete file ${subtitles.filePath}: ${err}`);
+                    } else {
+                        console.log(`File ${subtitles.filePath} deleted successfully.`);
+                    }
+                });
+            }
+
+            if (subtitles.outputFilePath) {
+                fs.unlink(subtitles.outputFilePath, (err) => {
+                    if (err) {
+                        console.error(`Failed to delete file ${subtitles.outputFilePath}: ${err}`);
+                    } else {
+                        console.log(`File ${subtitles.outputFilePath} deleted successfully.`);
+                    }
+                });
+            }
+
+            try {
+                await Subtitles.findByIdAndDelete(subtitles._id);
+            }
+            catch (err) {
+                console.error(err);
+            }
+        }
+
+        if (audioUrl) {
+            fs.unlink(audioUrl, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${audioUrl}: ${err}`);
+                } else {
+                    console.log(`File ${audioUrl} deleted successfully.`);
+                }
+            });
+        }
+
+        if (audioPath) {
+            fs.unlink(audioPath, (err) => {
+                if (err) {
+                    console.error(`Failed to delete file ${audioPath}: ${err}`);
+                } else {
+                    console.log(`File ${audioPath} deleted successfully.`);
+                }
+            });
+        }
     }
 };
 
@@ -544,10 +803,69 @@ exports.downloadTranslatedVideo = async (req, res) => {
         if (video.outputFilePath != videoInDB.outputFilePath) {
             throw new Error("Mismatching output file paths!");
         }
+
         res.download(
             video.outputFilePath,
             () => {
-                console.log("File sent");
+                console.log(`File ${video.outputFilePath} sent`);
+            }
+        );
+    }
+    catch (err) {
+        console.error(`Couldn't send the video to client! Error: ${err}`);
+        res.status(500).send(`Couldn't send the video to client! Error: ${err}`);
+    }
+}
+
+exports.downloadTranslatedSubtitles = async (req, res) => {
+    try {
+        const user = req.user;
+        const video = req.body.video;
+        if (user._id != video.user) {
+            throw new Error("User doesn't have permission to acces the video!");
+        }
+        const videoInDB = await Video.findById(video._id);
+        if (video.outputFilePath != videoInDB.outputFilePath) {
+            throw new Error("Mismatching output file paths!");
+        }
+
+        const subtitles = await Subtitles.find({
+            "video": videoInDB._id
+        });
+
+        res.download(
+            subtitles.outputFilePath,
+            () => {
+                console.log(`File ${subtitles.outputFilePath} sent`);
+            }
+        );
+    }
+    catch (err) {
+        console.error(`Couldn't send the video to client! Error: ${err}`);
+        res.status(500).send(`Couldn't send the video to client! Error: ${err}`);
+    }
+}
+
+exports.downloadOriginalSubtitles = async (req, res) => {
+    try {
+        const user = req.user;
+        const video = req.body.video;
+        if (user._id != video.user) {
+            throw new Error("User doesn't have permission to acces the video!");
+        }
+        const videoInDB = await Video.findById(video._id);
+        if (video.outputFilePath != videoInDB.outputFilePath) {
+            throw new Error("Mismatching output file paths!");
+        }
+
+        const subtitles = await Subtitles.find({
+            "video": videoInDB._id
+        });
+
+        res.download(
+            subtitles.filePath,
+            () => {
+                console.log(`File ${subtitles.filePath} sent`);
             }
         );
     }
@@ -563,7 +881,17 @@ exports.getAllVideos = async (req, res) => {
         const videos = await Video.find({
             "user": req.user._id
         });
-        res.status(200).send(videos);
+        const subtitles = [];
+        for (const video in videos) {
+            subtitles.push(await Subtitles.find({
+                "video": video._id
+            }));
+        }
+        res.status(200).send({
+            "user": req.user,
+            "videos": videos,
+            "subtitles": subtitles
+        });
     }
     catch (err) {
         console.error(err);
