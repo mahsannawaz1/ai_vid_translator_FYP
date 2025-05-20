@@ -1,5 +1,6 @@
 import React from 'react'
 import img from '../../assets/img.jpg';
+import { Link } from 'react-router-dom';
 
 const Products = ({productsRef}) => {
     return (
@@ -11,7 +12,7 @@ const Products = ({productsRef}) => {
                     <div className='product-card-body px-2 pt-2 pb-4'>
                         <p className='card-body-header m-0 py-2'>AI Powered Video Translator</p>
                         <p className='card-body-content m-0 pb-5'>Elevate your global reach with Pixel AI. Seamlessly translate videos into multiple languages with good enough lip-syncing.</p>
-                        <a href="#" className="translate-btn">Convert Now</a>
+                        <Link to={"/translate"} className="translate-btn">Convert Now</Link>
                     </div>
                 </div>
             

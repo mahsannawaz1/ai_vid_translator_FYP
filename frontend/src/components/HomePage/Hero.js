@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Hero = () => {
     return (
@@ -6,7 +7,7 @@ const Hero = () => {
             <h1 className='hero-heading'>Convert Your Favourite Videos with  <span className='hero-heading-content'>PIXEL AI</span> </h1>
             <h2 className='hero-sub-heading'>Powerful and Simple to Use</h2>
             <div className='d-flex align-items-center justify-content-center'>
-                <a href="#" className="translate-btn">Translate Now</a>
+                <Link to="/translate" className="translate-btn">Translate Now</Link>
             </div>
         </div>
     )

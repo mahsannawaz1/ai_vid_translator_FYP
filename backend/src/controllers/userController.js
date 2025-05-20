@@ -53,7 +53,11 @@ exports.loginUser = async(req,res) => {
         res.status(400).send({error:'Your email is not verified. We have sent a verification email to your email address.'})
         return
     }
-    const token = jwt.sign({ _id:user._id,isAdmin:user.isAdmin,isStaff:user.isStaff },process.env.JWT_SECRET_KEY)
+    const token = jwt.sign(
+        { _id:user._id,isAdmin:user.isAdmin,isStaff:user.isStaff },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: process.env.JWT_LIMIT}
+    )
     res.send({Authorization:token,email:user.email})
 }
 
