@@ -11,6 +11,7 @@ import ProcessingPage from './components/ProcessingPage/Processing';
 import HomePage from './components/HomePage/HomePage'; 
 import VerifyEmail from './components/SignUpPage/VerifyEmail';
 import VerifiedEmail from './components/SignUpPage/VerifiedEmail';
+import Dashboard from './components/DashBoardPage/Dashboard';
 import { getToken } from './services/userService';
 
 
@@ -33,6 +34,7 @@ function App() {
     <Route path="/video" element={<VideoPage />} key={"video"} />,
     <Route path="/download" element={<DownloadPage />} key={"download"} />,
     <Route path="/processing" element={<ProcessingPage />} key={"processing"} />,
+    <Route path="/dashboard" element={<Dashboard />} key={"dashboard"} />,
     <Route path="/login" element={authToken ? <Navigate to="/" replace /> : <AuthPage />} key={"login"} />,
     <Route path="/signUp" element={authToken ? <Navigate to="/" replace /> : <SignUpPage />} key={"signUp"} />,
   ]

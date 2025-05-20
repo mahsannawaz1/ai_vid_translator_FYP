@@ -4,6 +4,7 @@ import Navbar from "../HomePage/NavBar"; // Make sure path is correct
 import uploadBg from "../../assets/hero_img.webp";
 import { uploadVideo } from "../../services/videoService";
 import { useNavigate } from "react-router-dom";
+import languageOptions from "../../constants/supportedLangs";
 
 const LoadPage = () => {
   const navigate = useNavigate()
@@ -106,9 +107,14 @@ const LoadPage = () => {
             onChange={(e) => setTargetLang(e.target.value)}
           >
             <option value="">Select language</option>
-            <option value="ur">Urdu</option>
-            <option value="es" disabled>Spanish</option>
-            <option value="pt" disabled>Portuguese</option>
+              {
+              languageOptions?.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.label}
+                </option>
+              ))
+              }
+            
           </select>
         </div>
 

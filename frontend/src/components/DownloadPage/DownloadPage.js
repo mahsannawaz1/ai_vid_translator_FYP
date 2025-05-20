@@ -30,11 +30,8 @@ const DownloadPage = () => {
     );
   }
 
-  // Normalize paths from Windows to Web URLs
-  const webPath = video.outputFilePath.split("public")[1].replace(/\\/g, "/");
-  const videoUrl = `/temp${webPath}`;
-  // const audioUrl = videoUrl.replace(/\.mp4$/, ".mp3");
-  // const subtitleUrl = videoUrl.replace(/\.mp4$/, ".srt");
+  const fileName = video.outputFileName;
+  const videoUrl = `/temp/${encodeURIComponent(fileName)}`;
 
   return (
     <>
