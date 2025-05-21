@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import "./signUp.css";
 import logo from "../../assets/logo.png";
 import { registerUser } from "../../services/userService";
@@ -10,39 +10,56 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState(""); 
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); 
 
     if (!email || !password || !confirmPassword) {
-      alert("Please fill in all fields.");
+      setError("Please fill in all fields.");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
+      setError("Passwords do not match.");
       return;
     }
+
     const payload = { firstName, lastName, email, password, confirmPassword };
-    const res = await registerUser(payload);
-    console.log(res);
-    if (res) {
-      navigate("/verify", {
-        state: {
-          email: res.email,
-        },
-      });
-    } else {
-      alert("Invalid details Entered.");
+
+    try {
+      const res = await registerUser(payload);
+
+      if (res?.email) {
+        navigate("/verify", {
+          state: { email: res.email },
+        });
+      } else {
+        setError("Invalid signup details. Please try again.");
+      }
+    } catch (err) {
+      const apiMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        (Array.isArray(err?.response?.data?.errors) &&
+          err.response.data.errors[0]);
+
+      setError(apiMessage || "Something went wrong. Please try again.");
     }
+
   };
 
   return (
     <div className="signup-container">
-      <img src={logo} alt="Pixel AI Logo" className="signup-logo" />
+      <Link to="/" className='logo-link'>
+              <img src={logo} className="auth-logo" alt="Logo" />
+      </Link>
       <h1 className="hero-heading">Welcome to Pixel AI</h1>
+      {error && <p className="form-error">{error}</p>}
+
       <form className="signup-form" onSubmit={handleSubmit}>
         <label htmlFor="firstName">First Name</label>
         <input
@@ -98,6 +115,7 @@ const SignUp = () => {
           Sign Up
         </button>
       </form>
+
       <p className="auth-footer">
         Already have an account? <a href="/login">Login</a>
       </p>

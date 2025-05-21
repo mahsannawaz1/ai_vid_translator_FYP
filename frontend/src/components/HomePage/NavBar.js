@@ -21,11 +21,13 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick, s
     return (
         <div className='position-relative'>
         <div className="navbar w-100">
-            <div className="logo">
-            <img src={logo} alt="Logo" />
-            <span>Pixel AI</span>
-            
-            </div>
+            <Link to="/" className='logo-link'>
+                <div className="logo">
+                    <img src={logo} alt="Logo" />
+                    <span>Pixel AI</span>  
+                </div>
+            </Link>
+
             <button className="hamburger" onClick={toggleMobileMenu}>
             ☰
             </button>
@@ -42,7 +44,7 @@ export default function Navbar({ onFaqClick, onProductsClick, onTutorialClick, s
             :
             <>
                 <Link to="/dashboard" className="button border">Dashboard</Link>
-                <button className="button purple" onClick={handleLogoutUser}>Logout</button>
+                <button className="button purple border-0" onClick={handleLogoutUser}>Logout</button>
             </>
             
             }

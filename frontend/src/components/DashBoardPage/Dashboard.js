@@ -55,7 +55,7 @@ const Dashboard = () => {
             onTutorialClick={() => {}}
         />
 
-        {videos ? <div
+        {videos && videos.length > 0 ? <div
             className="dashboard-page"
             style={{ backgroundImage: `url(${heroBg})` }}
         >
@@ -88,17 +88,35 @@ const Dashboard = () => {
                 </div>
 
                 <div className="video-display">
-                    {currentVideo?.outputFilePath && (
-                        <video
-                        key={currentTab === "Original" ? currentVideo.outputFilePath : currentVideo.filePath}
-                        className="w-100"
-                        controls
-                        height="400"
-                        >
-                        <source src={getFile(currentTab === "Translated" ? currentVideo.outputFilePath : currentVideo.filePath)} type="video/mp4" />
-                        Your browser does not support the video tag.
-                        </video>
-                    )}
+                    {currentTab === "Translated" ? 
+                        (currentVideo.outputFilePath && 
+                        <>
+                            <video
+                            key={currentVideo.outputFilePath}
+                            className="w-100"
+                            controls
+                            height="400"
+                            >
+                            <source src={getFile(currentVideo.outputFilePath)} type="video/mp4" />
+                            Your browser does not support the video tag.
+                            </video>
+                        </>
+                        )
+                        :
+                        (currentVideo.filePath && 
+                        <>
+                            <video
+                            key={currentVideo.filePath}
+                            className="w-100"
+                            controls
+                            height="400"
+                            >
+                            <source src={getFile(currentVideo.filePath)} type="video/mp4" />
+                            Your browser does not support the video tag.
+                            </video>
+                        </>
+                        )
+                    }
                 </div>
 
                 <div className="translated-videos">
@@ -124,7 +142,7 @@ const Dashboard = () => {
             </div>
         </div>
         :
-        <div>
+        <div className="d-flex flex-column align-items-center justify-content-center no-videos-div">
             <h3 className="text-center text-capitalize">You haven't uploaded any videos yet.</h3>
             <Link to="/translate" className="translate-btn">Upload Now</Link>
         </div>
