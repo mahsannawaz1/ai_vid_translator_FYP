@@ -193,7 +193,13 @@
   font-size: 0.9rem;
   color: #ddd;
 }
-.cursor-pointer{cursor: pointer;}
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.no-videos-div{
+  height:600px;
+}
 
 
 @media (max-width: 900px) {

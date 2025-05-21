@@ -61,3 +61,8 @@ body{
 .h-200{
     height: 200px;
 }
+.logo-link{
+    text-transform: uppercase;
+    text-decoration: none;
+    color:#fff;
+}

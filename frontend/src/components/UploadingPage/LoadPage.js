@@ -18,10 +18,10 @@ const LoadPage = () => {
 
   const [originalLang, setOriginalLang] = useState("");
   const [targetLang, setTargetLang] = useState("");
-  const [lipSync, setLipSync] = useState(false);
+  const [lipSync, setLipSync] = useState(true);
   const [subtitles, setSubtitles] = useState(false);
   const [speedOpt, setSpeedOpt] = useState(false);
-  const [proofread, setProofread] = useState(true);
+  const [proofread, setProofread] = useState(false);
 
   const handleUpload = async () => {
   if (!videoFile || !originalLang || !targetLang) {
@@ -126,12 +126,13 @@ const LoadPage = () => {
             <span>Lip-sync</span>
             <input
               type="checkbox"
+              disabled
               checked={lipSync}
-              onChange={() => setLipSync(!lipSync)}
+              
             />
           </label>
           <label>
-            <span>Subtitles</span>
+            <span style={{color:"#fff"}}>Subtitles</span>
             <input
               type="checkbox"
               checked={subtitles}
@@ -143,6 +144,7 @@ const LoadPage = () => {
             <input
               type="checkbox"
               checked={speedOpt}
+              disabled
               onChange={() => setSpeedOpt(!speedOpt)}
             />
           </label>
@@ -151,6 +153,7 @@ const LoadPage = () => {
             <input
               type="checkbox"
               checked={proofread}
+              disabled
               onChange={() => setProofread(!proofread)}
             />
           </label>
