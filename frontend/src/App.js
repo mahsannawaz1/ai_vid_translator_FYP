@@ -30,11 +30,11 @@ function App() {
   }, []);
   console.log(authToken)
   const loggedInRoutes = [
-    <Route path="/translate" element={<LoadPage />} key={"translate"} />,
+    <Route path="/translate" element={<LoadPage setAuthToken={setAuthToken} />} key={"translate"} />,
     <Route path="/video" element={<VideoPage />} key={"video"} />,
-    <Route path="/download" element={<DownloadPage />} key={"download"} />,
+    <Route path="/download" element={<DownloadPage setAuthToken={setAuthToken} />} key={"download"} />,
     <Route path="/processing" element={<ProcessingPage />} key={"processing"} />,
-    <Route path="/dashboard" element={<Dashboard />} key={"dashboard"} />,
+    <Route path="/dashboard" element={<Dashboard setAuthToken={setAuthToken} />} key={"dashboard"} />,
     <Route path="/login" element={authToken ? <Navigate to="/" replace /> : <AuthPage />} key={"login"} />,
     <Route path="/signUp" element={authToken ? <Navigate to="/" replace /> : <SignUpPage />} key={"signUp"} />,
   ]

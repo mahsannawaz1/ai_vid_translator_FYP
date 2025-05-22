@@ -6,7 +6,7 @@ import { uploadVideo } from "../../services/videoService";
 import { useNavigate } from "react-router-dom";
 import languageOptions from "../../constants/supportedLangs";
 
-const LoadPage = () => {
+const LoadPage = ({setAuthToken}) => {
   const navigate = useNavigate()
   const [videoFile, setVideoFile] = useState(null);
   const faqRef = useRef(null);
@@ -68,6 +68,7 @@ const LoadPage = () => {
         onFaqClick={() => handleScroll(faqRef)}
         onProductsClick={() => handleScroll(productsRef)}
         onTutorialClick={() => handleScroll(tutorialRef)}
+        setAuthToken={setAuthToken}
       />
 
       <div className="upload-overlay"></div>

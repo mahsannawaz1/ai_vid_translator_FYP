@@ -4,7 +4,7 @@ import Navbar from "../HomePage/NavBar";
 import bgImage from "../../assets/hero_img.webp";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const DownloadPage = () => {
+const DownloadPage = ({setAuthToken}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { video, subtitles } = location.state || {};
@@ -13,7 +13,7 @@ const DownloadPage = () => {
     return (
       
       <>
-        <Navbar />
+        <Navbar setAuthToken={setAuthToken} />
         <div className="download-page flex-column">
           
           <h2 style={{ textAlign: "center", color: "white", marginTop: "50px" }}>

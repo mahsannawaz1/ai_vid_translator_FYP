@@ -5,7 +5,7 @@ import heroBg from "../../assets/hero_img.webp";
 import { dashboardDetails, extractSubtitles, getFile, msToSrtTime } from "../../services/videoService";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
+const Dashboard = ({setAuthToken}) => {
     const [videos, setVideos] = useState([])
     const [currentVideo,setCurrentVideo] = useState({})
     const [currentSubtitles,setCurrentSubtitles] = useState([])
@@ -53,6 +53,7 @@ const Dashboard = () => {
             onFaqClick={() => {}}
             onProductsClick={() => {}}
             onTutorialClick={() => {}}
+            setAuthToken={setAuthToken}
         />
 
         {videos && videos.length > 0 ? <div
