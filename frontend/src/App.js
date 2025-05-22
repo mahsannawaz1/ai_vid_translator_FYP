@@ -41,7 +41,7 @@ function App() {
   const loggedOutRoutes = [
     <Route path="/verify" element={<VerifyEmail />} key={"verify"}/>,
     <Route path="/verified" element={<VerifiedEmail />} key={"verified"}/>,
-    <Route path="/login" element={<AuthPage />} key={"login"} />,
+    <Route path="/login" element={<AuthPage setAuthToken={setAuthToken} />} key={"login"} />,
     <Route path="/signUp" element={<SignUpPage />} key={"signUp"} />,
   ]
   return (

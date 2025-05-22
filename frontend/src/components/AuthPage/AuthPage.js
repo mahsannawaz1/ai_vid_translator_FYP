@@ -4,7 +4,7 @@ import logo from "../../assets/logo.png";
 import { loginUser } from "../../services/userService";
 import { Link, useNavigate } from "react-router-dom";
 
-const AuthPage = () => {
+const AuthPage = ({setAuthToken}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,6 +26,7 @@ const AuthPage = () => {
       if (res?.data?.Authorization) {
         const token = res.data.Authorization;
         localStorage.setItem("x-auth-token", token);
+        setAuthToken(token);
         navigate("/");
       } else {
         setError("Invalid email or password.");
